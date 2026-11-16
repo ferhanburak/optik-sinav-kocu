@@ -1,4 +1,5 @@
-// Bugün: dashboard — geri sayım, istatistik kutuları, "Ne yapmak istersin?" seçenekleri, skor eğrisi, aileler, karar notu, yapılacaklar
+// Bugün: dashboard. Izgara düzeni (16'lık kenar, 8'lik aralık):
+//   özet (cam, tam genişlik) → günlük oturum (ana kart) → 3 sütun istatistik → 2 sütun eylem kutuları → skor, aileler, karar notu, yapılacaklar
 import React, { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { FAMILIES, PLACEMENT, TANIMA_GOAL } from "../data/catalog";
@@ -8,9 +9,10 @@ import { nav } from "../lib/nav";
 import { S, save, useStore } from "../lib/store";
 import type { Decision } from "../types";
 import { Spark } from "../ui/charts";
-import { Bar, Btn, Card, Chip, Count, Empty, Input, LightBadge, Row, Spacer, T, st, toast } from "../ui/kit";
-import { FadeIn } from "../ui/motion";
-import { useColors } from "../ui/theme";
+import { Bar, Btn, Card, Chip, Count, Empty, Glass, Input, LightBadge, Row, Spacer, T, st, toast } from "../ui/kit";
+import { FadeIn, Press } from "../ui/motion";
+import { TabIcon, type IconId } from "../ui/TabBar";
+import { elev, radius, useColors } from "../ui/theme";
 
 type SK = "normal" | "short" | "A" | "B";
 export const startSession = (sk: SK) => {
@@ -54,29 +56,44 @@ export function DecisionView({ d }: { d: Decision }) {
   );
 }
 
+/** İstatistik kutusu: 3 sütunlu ızgaranın bir hücresi (cam) */
 function Tile({ v, l, sub, warn, i = 0 }: { v: React.ReactNode; l: string; sub?: string; warn?: boolean; i?: number }) {
   const c = useColors();
   return (
-    <FadeIn delay={i * 45} style={{ flexBasis: "30%", flexGrow: 1, minWidth: 100, backgroundColor: c.paper, borderColor: c.line, borderWidth: 1, borderRadius: 12, padding: 12 }}>
-      <Text style={{ fontSize: 20, fontWeight: "800", color: warn ? c.bad : c.ink, fontVariant: ["tabular-nums"] }}>{v}</Text>
-      <T v="small">{l}</T>
-      {sub ? <T v="small" muted>{sub}</T> : null}
+    <FadeIn delay={i * 45} style={{ flexBasis: "30%", flexGrow: 1, minWidth: 96, backgroundColor: c.glass, borderColor: c.glassLine, borderWidth: 1, borderRadius: radius.tile, paddingVertical: 12, paddingHorizontal: 12, gap: 1 }}>
+      <Text style={{ fontSize: 21, fontWeight: "800", color: warn ? c.bad : c.ink, fontVariant: ["tabular-nums"], letterSpacing: -0.3 }}>{v}</Text>
+      <T v="small" style={{ fontWeight: "600" }}>{l}</T>
+      {sub ? <T v="small" muted style={{ fontSize: 11.5, lineHeight: 15 }}>{sub}</T> : null}
     </FadeIn>
   );
 }
 
-function Option({ title, desc, badge, children, i = 0 }: { title: string; desc?: string; badge?: string; children: React.ReactNode; i?: number }) {
+/** Eylem kutusu: 2 sütunlu ızgaranın bir hücresi; kutunun tamamı dokunulabilir */
+function Action({ icon, title, desc, badge, onPress, disabled, wide, i = 0 }: { icon: IconId; title: string; desc: string; badge?: string; onPress: () => void; disabled?: boolean; wide?: boolean; i?: number }) {
   const c = useColors();
   return (
-    <FadeIn delay={120 + i * 55} style={{ flexBasis: 280, flexGrow: 1 }}>
-    <Card style={{ flexGrow: 1 }}>
-      <Row>
-        <T v="h3">{title}</T>
-        {badge ? <Chip text={badge} color={c.guide} /> : null}
-      </Row>
-      {desc ? <T v="small" muted>{desc}</T> : null}
-      {children}
-    </Card>
+    <FadeIn delay={140 + i * 50} style={{ flexBasis: wide ? "100%" : "46%", flexGrow: 1 }}>
+      <Press
+        accessibilityRole="button"
+        accessibilityLabel={`${title}. ${desc}`}
+        accessibilityState={{ disabled }}
+        disabled={disabled}
+        onPress={onPress}
+        style={{ flex: 1 }}
+        inner={{ flex: 1, minHeight: wide ? undefined : 118, backgroundColor: wide ? c.paper : c.glass, borderColor: wide ? c.guideLine : c.glassLine, borderWidth: 1, borderRadius: radius.tile, padding: 14, gap: 8, opacity: disabled ? 0.55 : 1, boxShadow: wide ? elev(c) : undefined, flexDirection: wide ? "row" : "column", alignItems: wide ? "center" : "flex-start" }}
+      >
+        <View style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: c.guideSoft, alignItems: "center", justifyContent: "center" }}>
+          <TabIcon id={icon} color={c.guide} size={20} />
+        </View>
+        <View style={{ flex: wide ? 1 : undefined, gap: 2, alignSelf: "stretch" }}>
+          <Row gap={6}>
+            <T style={{ fontWeight: "700" }}>{title}</T>
+            {badge ? <Chip text={badge} color={c.guide} /> : null}
+          </Row>
+          <T v="small" muted numberOfLines={wide ? 3 : 2}>{desc}</T>
+        </View>
+        {wide ? <Text style={{ fontSize: 22, color: c.guide, fontWeight: "700" }}>›</Text> : null}
+      </Press>
     </FadeIn>
   );
 }
@@ -134,7 +151,7 @@ export function Today() {
     sess = (
       <>
         <PlanLines lines={sessionPlanLines(false)} />
-        <Row style={{ marginTop: 6 }}>
+        <Row style={{ marginTop: 8 }}>
           <Btn kind="pri" title="Başla" onPress={() => startSession("normal")} />
           <Btn sm title="Bugün kısa" onPress={() => startSession("short")} />
           <Btn sm kind="ghost" title="Bugün yok" onPress={() => { if (!S.skips.includes(today())) S.skips.push(today()); save(); toast("Bugün atlandı. Yarın iki seans halinde telafi edeceğiz."); }} />
@@ -143,82 +160,101 @@ export function Today() {
     );
 
   return (
-    <ScrollView contentContainerStyle={st.screen}>
-      <Card>
-        <Row wrap={false} style={{ alignItems: "flex-start" }} gap={14}>
-          <View style={{ alignItems: "center", minWidth: 70 }}>
-            {p.examSet && left >= 0 ? <Count to={left} color={c.guide} /> : <T v="big" color={c.guide}>—</T>}
-            <T v="small" muted>gün kaldı</T>
-          </View>
-          <View style={{ flex: 1, gap: 4 }}>
-            <T v="label">YDS · {p.examSet ? fmtDate(p.examDate) : "sınav tarihi girilmedi"} · hedef {p.target}+</T>
-            <T v="h2">{s.onboarded ? (s.tanima ? "Seni tanıyoruz" : "Çalışma panelin") : "Hoş geldin"}</T>
-            {!p.examSet ? (
-              <Row>
-                <Input value={exDate} onChangeText={setExDate} placeholder="YYYY-AA-GG" style={{ minWidth: 130 }} />
-                <Btn sm title="Kaydet" onPress={() => {
-                  if (!isYmd(exDate)) return toast("Tarihi YYYY-AA-GG biçiminde yaz, ör. 2026-04-05.");
-                  S.profile.examDate = exDate;
-                  S.profile.examSet = true;
-                  save();
-                  toast("Sınav tarihi kaydedildi.");
-                }} />
-              </Row>
-            ) : (
-              <T v="small" muted>{t ? `Aktif konu: ${t.t}` : ""}{left >= 0 && left <= 7 ? " · Son hafta: denemeler ve hata analizi" : ""}</T>
-            )}
-          </View>
-        </Row>
-      </Card>
+    <ScrollView contentContainerStyle={st.screen} showsVerticalScrollIndicator={false}>
+      {/* Özet */}
+      <FadeIn>
+        <Glass r={radius.sheet} style={{ padding: 18 }}>
+          <T v="label" color={c.guide}>YDS · {p.examSet ? fmtDate(p.examDate) : "sınav tarihi girilmedi"} · hedef {p.target}+</T>
+          <Row wrap={false} gap={16} style={{ alignItems: "center" }}>
+            <View style={{ alignItems: "center", minWidth: 76, paddingVertical: 8, paddingHorizontal: 10, borderRadius: radius.tile, backgroundColor: c.guideSoft }}>
+              {p.examSet && left >= 0 ? <Count to={left} color={c.guide} /> : <T v="big" color={c.guide}>—</T>}
+              <T v="small" color={c.guide} style={{ fontWeight: "600" }}>gün kaldı</T>
+            </View>
+            <View style={{ flex: 1, gap: 4 }}>
+              <T v="h2">{s.onboarded ? (s.tanima ? "Seni tanıyoruz" : "Çalışma panelin") : "Hoş geldin"}</T>
+              {p.examSet ? (
+                <T v="small" muted>{t ? `Aktif konu: ${t.t}` : "Bütün konular tamam"}{left >= 0 && left <= 7 ? " · Son hafta: denemeler ve hata analizi" : ""}</T>
+              ) : (
+                <T v="small" muted>Sınav tarihini gir, geri sayım ve plan ona göre kurulsun.</T>
+              )}
+            </View>
+          </Row>
+          {!p.examSet ? (
+            <Row wrap={false}>
+              <Input value={exDate} onChangeText={setExDate} placeholder="YYYY-AA-GG" accessibilityLabel="Sınav tarihi" style={{ flex: 1 }} />
+              <Btn title="Kaydet" onPress={() => {
+                if (!isYmd(exDate)) return toast("Tarihi YYYY-AA-GG biçiminde yaz, ör. 2026-04-05.");
+                S.profile.examDate = exDate;
+                S.profile.examSet = true;
+                save();
+                toast("Sınav tarihi kaydedildi.");
+              }} />
+            </Row>
+          ) : null}
+        </Glass>
+      </FadeIn>
 
-      <Row gap={8}>
+      {/* Ana eylem */}
+      <FadeIn delay={60}>
+        <Card accent style={{ borderColor: c.guideLine }}>
+          <Row>
+            <T v="h3">Günlük oturum</T>
+            {telafi ? <Chip text="telafi" color={c.guide} /> : null}
+            <Spacer />
+            {!done.length && !skipped ? <T v="small" muted>~{p.dailyMin} dk</T> : null}
+          </Row>
+          {sess}
+        </Card>
+      </FadeIn>
+
+      {/* İstatistikler: 3 sütun */}
+      <Row gap={8} style={{ alignItems: "stretch" }}>
         <Tile i={0} v={s.attempts.length || "—"} l="çözülen soru" sub={wk.length ? `bu hafta ${wk.length}` : "henüz yok"} />
-        <Tile i={1} v={acc === null ? "—" : `${acc}%`} l="ilk denemede doğru" sub="son 7 gün" />
-        <Tile i={2} v={spq ? `${spq} sn` : "—"} l="soru başına" sub={spq ? (spq < 75 ? "hedef ≥75 sn" : "hedefte") : "süre verisi yok"} warn={!!spq && spq < 75} />
-        <Tile i={3} v={streakDays() || "—"} l="gün seri" sub={s.sessions.length ? `${s.sessions.length} oturum` : ""} />
+        <Tile i={1} v={acc === null ? "—" : `%${acc}`} l="ilk denemede" sub="son 7 gün" />
+        <Tile i={2} v={spq ? `${spq} sn` : "—"} l="soru başına" sub={spq ? (spq < 75 ? "hedef ≥75 sn" : "hedefte") : "veri yok"} warn={!!spq && spq < 75} />
+        <Tile i={3} v={streakDays() || "—"} l="gün seri" sub={s.sessions.length ? `${s.sessions.length} oturum` : "henüz yok"} />
         <Tile i={4} v={<Text><Text style={{ color: c.bad }}>{lights.red}</Text> · <Text style={{ color: c.warn }}>{lights.yellow}</Text> · <Text style={{ color: c.ok }}>{lights.green}</Text></Text>} l="hata ailesi" sub="açık · düzeliyor · oturdu" />
-        <Tile i={5} v={s.vocab.length || "—"} l="kelime" sub={vdue ? `${vdue} tekrarı geldi` : ""} />
+        <Tile i={5} v={s.vocab.length || "—"} l="kelime" sub={vdue ? `${vdue} tekrar bekliyor` : "tekrar yok"} />
       </Row>
 
       {s.tanima ? (
         <Card>
           <Row><T v="h3">Seni tanıma aşaması</T><Spacer /><T v="mono">{famsKnown()}/{TANIMA_GOAL} aile</T></Row>
-          <Bar value={pct(famsKnown(), TANIMA_GOAL)} color={c.warn} />
+          <Row><Bar value={pct(famsKnown(), TANIMA_GOAL)} color={c.warn} /></Row>
           <T v="small" muted>Oturumlar şimdilik teşhis ağırlıklı. {TANIMA_GOAL} ailede veri oluşunca konu anlatımlarına geçilir.</T>
         </Card>
       ) : null}
 
-      <T v="h3">Ne yapmak istersin?</T>
-      <Row gap={10} style={{ alignItems: "stretch" }}>
-        <Option i={0} title="Günlük oturum" desc={done.length ? undefined : "Isınma, kelimeler, konu, set ve değerlendirme."} badge={telafi ? "telafi" : undefined}>{sess}</Option>
-        <Option i={1} title="Seviye testi" badge={place ? undefined : "Önerilen"} desc={place ? `Son sonuç: ${place.c}/${place.n} (${fmtShort(place.date)}). Yeniden çözüp ilerlemeni görebilirsin.` : `${PLACEMENT.length} soru, ~40 dk. Her hata ailesinden soru sorar; plan ve tekrarlar sonuca göre kurulur.`}>
-          <Row><Btn kind={place ? "def" : "pri"} title={place ? "Yeniden çöz" : "Testi çöz"} onPress={() => nav.open({ kind: "place" })} /></Row>
-        </Option>
-        <Option i={2} title="Deneme" desc={lastMock ? `Son deneme: ${lastMock.c}/${lastMock.n} · puan ${lastMock.score} (${fmtShort(lastMock.date)}).` : "Tam (80 soru · 180 dk), yarım (40 · 90 dk) ya da mini (20 · 45 dk). Gerçek YDS dağılımında."}>
-          <Row><Btn title="Deneme çöz" onPress={() => nav.tab("deneme")} /></Row>
-        </Option>
-        <Option i={3} title="Zayıf aileni çalış" desc={weakest ? `${FAMILIES[weakest[0]].n} · ${lightLabel(weakest[1].light)}. ${FAMILIES[weakest[0]].tool}` : "Soru çözdükçe en zayıf hata ailen burada çıkar; ondan 3 soruluk drill çözersin."}>
-          <Row>{weakest ? <Btn title="3 soru çöz" onPress={() => nav.open({ kind: "drill", f: weakest[0] })} /> : <Btn title="Henüz veri yok" disabled />}</Row>
-        </Option>
-        <Option i={4} title="Yanlış defteri" desc={misN ? `${misN} kayıt · ${lights.red} açık aile. Her kayıtta senin cevabın, doğrusu, neden ve püf.` : "Yanlışların ve emin olmadan doğru yaptıkların burada ailesine göre birikir."}>
-          <Row><Btn title="Aç" disabled={!misN} onPress={() => nav.tab("defter", "yanlis")} /></Row>
-        </Option>
-        <Option i={5} title="Kelime tekrarı" desc={s.vocab.length ? `${s.vocab.length} kelime · ${vdue} tanesinin tekrarı geldi. Akşam ${p.vocabTime}'da hatırlatılır.` : "Her oturumda 15 yeni kelime eklenir; elindeki listeyi de yapıştırabilirsin."}>
-          <Row>{s.vocab.length ? <Btn title="10 dk tekrar" onPress={() => nav.open({ kind: "vrev" })} /> : <Btn title="Kelimeler" onPress={() => nav.tab("kelimeler")} />}</Row>
-        </Option>
+      {/* Eylemler: 2 sütun; seviye testi çözülmediyse tam genişlikte öne çıkar */}
+      <T v="label" color={c.guide} style={{ marginTop: 4 }}>Ne yapmak istersin?</T>
+      <Row gap={8} style={{ alignItems: "stretch" }}>
+        <Action
+          i={0}
+          wide={!place}
+          icon="hedef"
+          title="Seviye testi"
+          badge={place ? undefined : "Önerilen"}
+          desc={place ? `Son: ${place.c}/${place.n} · ${fmtShort(place.date)}` : `${PLACEMENT.length} soru, ~40 dk. Her hata ailesinden sorar; planın sonuca göre kurulur.`}
+          onPress={() => nav.open({ kind: "place" })}
+        />
+        <Action i={1} icon="deneme" title="Deneme" desc={lastMock ? `Son: ${lastMock.c}/${lastMock.n} · puan ${lastMock.score}` : "Tam, yarım ya da mini; gerçek YDS dağılımında"} onPress={() => nav.tab("deneme")} />
+        <Action i={2} icon="ilerleme" title="Zayıf aileni çalış" disabled={!weakest} desc={weakest ? `${FAMILIES[weakest[0]].n} · ${lightLabel(weakest[1].light)}` : "Soru çözdükçe en zayıf ailen burada çıkar"} onPress={() => weakest && nav.open({ kind: "drill", f: weakest[0] })} />
+        <Action i={3} icon="defter" title="Yanlış defteri" disabled={!misN} desc={misN ? `${misN} kayıt · ${lights.red} açık aile` : "Yanlışların ailesine göre burada birikir"} onPress={() => nav.tab("defter", "yanlis")} />
+        <Action i={4} icon="kelimeler" title="Kelime tekrarı" desc={s.vocab.length ? `${vdue} tekrar bekliyor · ${s.vocab.length} kelime` : "İlk oturumda 15 kelime eklenir"} onPress={() => (s.vocab.length ? nav.open({ kind: "vrev" }) : nav.tab("kelimeler"))} />
+        {place ? <Action i={5} icon="plan" title="Plan" desc={t ? t.t : "Bütün konular tamam"} onPress={() => nav.tab("plan")} /> : null}
       </Row>
 
       <Card>
-        <Row><T v="h3">Skor eğrisi</T><Spacer /><Pressable onPress={() => nav.tab("ilerleme")}><T v="small" color={c.guide}>İlerleme</T></Pressable></Row>
+        <Row><T v="h3">Skor eğrisi</T><Spacer /><Pressable hitSlop={8} onPress={() => nav.tab("ilerleme")}><T v="small" color={c.guide} style={{ fontWeight: "600" }}>İlerleme ›</T></Pressable></Row>
         <Spark ss={ss} />
         {ss.length ? <T v="small" muted>Son {ss.length} oturum, ilk deneme yüzdesi. Kesik çizgi %70.</T> : null}
       </Card>
 
       <Card>
-        <Row><T v="h3">Hata aileleri</T><Spacer /><Pressable onPress={() => nav.tab("defter", "yanlis")}><T v="small" color={c.guide}>Defter</T></Pressable></Row>
+        <Row><T v="h3">Hata aileleri</T><Spacer /><Pressable hitSlop={8} onPress={() => nav.tab("defter", "yanlis")}><T v="small" color={c.guide} style={{ fontWeight: "600" }}>Defter ›</T></Pressable></Row>
         {famEntries().length ? (
           famEntries().slice(0, 5).map(([k, f]) => (
-            <Row key={k} wrap={false} style={{ borderTopWidth: 1, borderColor: c.line, paddingTop: 8 }}>
+            <Row key={k} wrap={false} style={{ borderTopWidth: 1, borderColor: c.line, paddingTop: 10 }}>
               <View style={{ flex: 1 }}>
                 <T v="small" style={{ fontWeight: "700" }}>{FAMILIES[k].n}</T>
                 <T v="small" muted>{FAMILIES[k].tool}</T>
@@ -243,8 +279,8 @@ export function Today() {
         {s.todos.length ? (
           s.todos.map((td) => (
             <Row key={td.id} wrap={false}>
-              <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: td.done }} onPress={() => { td.done = !td.done; save(); }} style={{ flex: 1, flexDirection: "row", gap: 8, alignItems: "center" }}>
-                <View style={{ width: 20, height: 20, borderRadius: 5, borderWidth: 1.5, borderColor: c.guide, backgroundColor: td.done ? c.guide : "transparent" }} />
+              <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: td.done }} onPress={() => { td.done = !td.done; save(); }} style={{ flex: 1, flexDirection: "row", gap: 10, alignItems: "center", paddingVertical: 4 }}>
+                <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: c.guide, backgroundColor: td.done ? c.guide : "transparent" }} />
                 <T v="small" style={td.done ? { textDecorationLine: "line-through", color: c.muted } : undefined}>{td.t}</T>
               </Pressable>
               <Btn sm kind="ghost" title="Sil" onPress={() => { S.todos = S.todos.filter((x) => x.id !== td.id); save(); }} />
