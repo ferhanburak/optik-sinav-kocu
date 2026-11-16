@@ -6,6 +6,8 @@ import { FAMILIES, PLACEMENT, TANIMA_GOAL } from "../data/catalog";
 import { dayOf, diffDays, fmtDate, fmtShort, isYmd, pct, today, uid } from "../lib/dates";
 import { activeTopic, dueFams, famEntries, famsKnown, isTelafi, lightLabel, sessionsOn, streakDays } from "../lib/engine";
 import { nav } from "../lib/nav";
+import { canLight, completedToday, DAY_LABEL, dayPlan, FREE_SKIPS_PER_WEEK, INTENSITY, intensityToday, isLightToday, LIGHT_PER_WEEK, lightUsed, planTitle, requestGap, setLight, skipsUsed } from "../lib/plan";
+import { LESSONS } from "../content";
 import { S, save, useStore } from "../lib/store";
 import type { Decision } from "../types";
 import { Spark } from "../ui/charts";
@@ -20,13 +22,17 @@ export const startSession = (sk: SK) => {
   else nav.open({ kind: "session", sk });
 };
 
+/** Günün adımları: türüne (konu / açık kapama) ve yoğunluğa göre */
 export function sessionPlanLines(short: boolean): [string, string][] {
-  const t = activeTopic();
-  const due = dueFams();
-  const review = !t || t.kind === "review";
-  const set: [string, string] = ["Set", `${short ? 5 : 16} soru${due.length && !S.tanima ? " · gizli tekrarlar içinde" : ""} · yaklaşık ${short ? 20 : S.profile.dailyMin} dk`];
-  const head: [string, string] = S.tanima ? ["Konu", "Seni tanıma: her hata türünden karışık teşhis soruları"] : ["Konu", review ? (t ? t.t : "Pekiştirme") : t!.t];
-  return [head, ["Isınma", `${short ? 3 : 6} soru`], ["Kelime", short ? "dünkülerden 5 tekrar" : "15 yeni + dünkülerden 5 tekrar"], set];
+  const p = dayPlan();
+  const I = INTENSITY[short ? "hafif" : intensityToday()];
+  const lines: [string, string][] = [[p.type === "tekrar" ? "Odak" : "Konu", planTitle(p)], ["Isınma", `${I.warm} soru`]];
+  if (p.type === "tekrar") lines.push(["Notlar", `${p.focus.length} hata türü için mini not`]);
+  else if (!short) lines.push(["Kelime", `${I.vocab} yeni + dünkülerden 5 tekrar`]);
+  const les = p.type === "konu" && p.topic && !short ? LESSONS[p.topic.id] : null;
+  if (les) lines.push(["Anlatım", `${les.parts.length} part · ${les.parts.reduce((a, x) => a + (x.ornekler || []).length, 0)} çözümlü örnek`]);
+  lines.push(["Test", `${I.set} soru · yaklaşık ${I.min} dk`]);
+  return lines;
 }
 
 export function PlanLines({ lines }: { lines: [string, string][] }) {
@@ -106,7 +112,10 @@ export function Today() {
   const p = s.profile;
   const left = diffDays(today(), p.examDate);
   const t = activeTopic();
-  const done = sessionsOn(today());
+  const done = completedToday();
+  const half = sessionsOn(today()).some((x) => x.done === false) && !done.length;
+  const plan = dayPlan();
+  const inten = intensityToday();
   const skipped = s.skips.includes(today());
   const telafi = isTelafi() && !done.length;
   const lights = { red: 0, yellow: 0, green: 0 } as Record<string, number>;
@@ -150,11 +159,31 @@ export function Today() {
   else
     sess = (
       <>
+        <T v="small" muted>{plan.why}</T>
+        {half ? <T v="small" color={c.warn} style={{ fontWeight: "600" }}>Bugünkü oturum yarım kaldı. Testi bitirince gün tamamlanır.</T> : null}
         <PlanLines lines={sessionPlanLines(false)} />
-        <Row style={{ marginTop: 8 }}>
-          <Btn kind="pri" title="Başla" onPress={() => startSession("normal")} />
-          <Btn sm title="Bugün kısa" onPress={() => startSession("short")} />
-          <Btn sm kind="ghost" title="Bugün yok" onPress={() => { if (!S.skips.includes(today())) S.skips.push(today()); save(); toast("Bugün atlandı. Yarın iki seans halinde telafi edeceğiz."); }} />
+        <Row gap={6}>
+          <T v="small" muted>Yoğunluk:</T>
+          <Chip text={INTENSITY[inten].l} color={c.guide} />
+          {isLightToday() ? (
+            <Btn sm kind="ghost" title="Hafif günü geri al" onPress={() => setLight(false)} />
+          ) : canLight() ? (
+            <Btn sm kind="ghost" title={`Hafif gün (kalan ${LIGHT_PER_WEEK - lightUsed()})`} onPress={() => { setLight(true); toast(`Bugün hafif gün. Bu hafta ${LIGHT_PER_WEEK - lightUsed() - 1} hakkın kaldı.`); }} />
+          ) : null}
+        </Row>
+        <Row style={{ marginTop: 4 }}>
+          <Btn kind="pri" title={half ? "Devam et" : "Başla"} onPress={() => startSession("normal")} />
+          {plan.asked ? (
+            <Btn sm title="Planlanan güne dön" onPress={() => requestGap(false)} />
+          ) : plan.type === "konu" ? (
+            <Btn sm title="Açıkları kapatmak istiyorum" onPress={() => requestGap(true)} />
+          ) : null}
+          <Btn sm kind="ghost" title="Bugün yok" onPress={() => {
+            if (!S.skips.includes(today())) S.skips.push(today());
+            save();
+            const used = skipsUsed();
+            toast(used >= FREE_SKIPS_PER_WEEK ? `Bu hafta ${used + 1}. kez atladın. Yarın telafi var ve konuların beklenen bitişi bir gün kayıyor.` : "Bugün atlandı. Yarın iki seans halinde telafi edeceğiz.", 6000);
+          }} />
         </Row>
       </>
     );
@@ -199,9 +228,9 @@ export function Today() {
         <Card accent style={{ borderColor: c.guideLine }}>
           <Row>
             <T v="h3">Günlük oturum</T>
-            {telafi ? <Chip text="telafi" color={c.guide} /> : null}
+            {telafi ? <Chip text="telafi" color={c.guide} /> : !done.length && !skipped ? <Chip text={DAY_LABEL[plan.type]} color={c.guide} /> : null}
             <Spacer />
-            {!done.length && !skipped ? <T v="small" muted>~{p.dailyMin} dk</T> : null}
+            {!done.length && !skipped ? <T v="small" muted>~{INTENSITY[inten].min} dk</T> : null}
           </Row>
           {sess}
         </Card>
