@@ -71,7 +71,7 @@ function Main() {
       <TabBar value={n.tab} onChange={(t) => nav.tab(t)} />
       <Modal visible={!!p} animationType="slide" onRequestClose={() => nav.close()}>
         <SafeAreaProvider>
-          {p?.kind === "session" ? <SessionPlayer sk={p.sk} /> : p?.kind === "drill" ? <DrillPlayer f={p.f} /> : p?.kind === "place" ? <PlacementPlayer /> : p?.kind === "mock" ? <MockPlayer mode={p.mode} /> : p?.kind === "vrev" ? <VocabReviewPlayer /> : null}
+          {p?.kind === "session" ? <SessionPlayer sk={p.sk} review={p.review} /> : p?.kind === "drill" ? <DrillPlayer f={p.f} /> : p?.kind === "place" ? <PlacementPlayer /> : p?.kind === "mock" ? <MockPlayer mode={p.mode} /> : p?.kind === "vrev" ? <VocabReviewPlayer /> : null}
           <Toasts />
         </SafeAreaProvider>
       </Modal>
