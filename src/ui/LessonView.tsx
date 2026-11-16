@@ -51,6 +51,18 @@ function SampleQ({ q }: { q: NonNullable<LessonPart["ornek_soru"]> }) {
   );
 }
 
+function Tatbikat({ t, reveal }: { t: NonNullable<LessonPart["tatbikat"]>; reveal: boolean }) {
+  const [open, setOpen] = useState(reveal);
+  return (
+    <View style={{ gap: 6 }}>
+      <T v="label">Hızlı tatbikat</T>
+      <T v="small" muted>Önce kendin dene, sonra cevapları aç.</T>
+      <Table cols={open ? t.cols : [t.cols[0]]} rows={t.rows.map((r) => (open ? r : [r[0]]))} />
+      {open ? null : <Row><Btn sm kind="ghost" title="Cevapları göster" onPress={() => setOpen(true)} /></Row>}
+    </View>
+  );
+}
+
 function Part({ p, n, reveal }: { p: LessonPart; n: number; reveal: boolean }) {
   const c = useColors();
   return (
@@ -64,6 +76,7 @@ function Part({ p, n, reveal }: { p: LessonPart; n: number; reveal: boolean }) {
       <Md src={p.anlatim} />
       <Sence p={p} reveal={reveal} />
       {p.tablo && Array.isArray(p.tablo.cols) ? <Table cols={p.tablo.cols} rows={p.tablo.rows || []} /> : null}
+      {p.tatbikat ? <Tatbikat t={p.tatbikat} reveal={reveal} /> : null}
       {(p.kutular || []).map((b, i) => {
         const kind = (["kural", "tuzak", "puf"].includes(b.tur) ? b.tur : "kural") as "kural" | "tuzak" | "puf";
         return (

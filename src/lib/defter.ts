@@ -162,7 +162,7 @@ function lessonSection(title: string, d: Lesson, fams: string[]): string {
   const parts = (d.parts || [])
     .map(
       (p, i) =>
-        `<h3>${i + 1}. ${e(p.baslik)}</h3>${md(p.anlatim)}${p.tablo && p.tablo.cols ? `<table><tr>${p.tablo.cols.map((c) => `<th>${e(c)}</th>`).join("")}</tr>${(p.tablo.rows || []).map((r) => `<tr>${r.map((c) => `<td>${inl(e(c))}</td>`).join("")}</tr>`).join("")}</table>` : ""}${(p.kutular || []).map((b) => box(b.tur === "tuzak" ? "warn" : "info", b.tur === "tuzak" ? "⚠️ Tuzak" : b.tur === "puf" ? "💡 Püf" : "📌 Kural", md(b.metin))).join("")}${(p.ornekler || [])
+        `<h3>${i + 1}. ${e(p.baslik)}</h3>${md(p.anlatim)}${p.tablo && p.tablo.cols ? `<table><tr>${p.tablo.cols.map((c) => `<th>${e(c)}</th>`).join("")}</tr>${(p.tablo.rows || []).map((r) => `<tr>${r.map((c) => `<td>${inl(e(c))}</td>`).join("")}</tr>`).join("")}</table>` : ""}${p.tatbikat ? `<h4>Hızlı tatbikat (cevaplar yanında)</h4><p>Her satırı önce sağdaki sütunları kapatıp kendin dene.</p><table><tr>${p.tatbikat.cols.map((c) => `<th>${e(c)}</th>`).join("")}</tr>${p.tatbikat.rows.map((r) => `<tr>${r.map((c) => `<td>${e(c)}</td>`).join("")}</tr>`).join("")}</table>` : ""}${(p.kutular || []).map((b) => box(b.tur === "tuzak" ? "warn" : "info", b.tur === "tuzak" ? "⚠️ Tuzak" : b.tur === "puf" ? "💡 Püf" : "📌 Kural", md(b.metin))).join("")}${(p.ornekler || [])
           .map((x, j) => `<div class="ex"><div class="l">Örnek ${j + 1}</div><p>${e(x.q)}</p><p>${opts(x.o || [])}</p><div class="ans"><b>✅ Cevap: ${LETTERS[+x.a]}) ${e((x.o || [])[+x.a])}</b><p>${inl(e(x.neden))}</p>${(x.celdiriciler || []).map((t, k) => (t && k !== +x.a ? `<div class="x"><b>${e((x.o || [])[k])}:</b> ${e(t)}</div>` : "")).join("")}</div></div>`)
           .join("")}`,
     )
