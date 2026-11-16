@@ -15,7 +15,7 @@ ok(BANK_ALL.length === 169, `banka 169 soru (${BANK_ALL.length})`);
 ok(new Set(BANK_ALL.map((x) => x.bid)).size === BANK_ALL.length, "bid'ler benzersiz");
 ok(BANK_ALL.every((x) => x.o.length === 5 && x.a >= 0 && x.a < 5 && FAMILIES[x.fam] && SECTIONS[x.sec]), "her soru geçerli");
 const withLesson = CURRICULUM.filter((c) => LESSONS[c.id]).map((c) => c.id);
-ok(withLesson.length === 21, `21 konu anlatımı (${withLesson.length})`);
+ok(withLesson.length === 24, `24 konu anlatımı (${withLesson.length})`);
 for (const id of withLesson) {
   const ex = LESSONS[id].parts.reduce((a, p) => a + (p.ornekler || []).length, 0);
   ok(ex >= 4, `${id}: en az 4 çözümlü örnek (${ex})`);
@@ -100,9 +100,9 @@ const cards: Record<number, ReturnType<typeof E.newCardState>> = {};
 pq.forEach((qq, i) => { cards[i] = E.newCardState(); E.cardPick(qq, cards[i], i % 2 ? qq.a : (qq.a + 1) % 5, "seviye"); if (cards[i].stage === "retry") E.cardPick(qq, cards[i], qq.a, "seviye"); });
 const pr = E.placementApply(pq, cards, Date.now() - 1000);
 ok(pr.n === 27 && pr.c === 13 && S.onboarded && S.topics[0].status === "tamam", `seviye testi 13/27 (${pr.c})`);
-ok(E.activeTopic()?.id === "t1", "aktif konu t1");
-E.advanceTopic(); ok(E.activeTopic()?.id === "t2", "devam → t2");
-E.jumpTopic("t10"); ok(E.activeTopic()?.id === "t10" && E.topicStatus("t2") === "tamam" && E.topicStatus("t5") === "bekliyor", "konuya atla");
+ok(E.activeTopic()?.id === "tf", "aktif konu: Fiil var mı?");
+E.advanceTopic(); ok(E.activeTopic()?.id === "t1", "devam → t1");
+E.jumpTopic("t10"); ok(E.activeTopic()?.id === "t10" && E.topicStatus("t1") === "tamam" && E.topicStatus("t5") === "bekliyor", "konuya atla");
 
 // Defter ve normalize
 S.sessions.push({ id: "x", date: today(), kind: "oturum", topic: "t7", n: 16, c: 10, cf: 12, p: 63, pf: 75, spq: 60, dur: 30 });
@@ -113,7 +113,10 @@ ok(rt.length > 0 && rt.every((r) => r.q.fam === r.from.fam && !S.mistakes.some((
 ok(new Set(rt.map((r) => r.q.bid)).size === rt.length, "tekrar testinde aynı soru iki kez yok");
 if (process.env.DEFTER_OUT) require("fs").writeFileSync(process.env.DEFTER_OUT, html);
 ok(normalize(null).v === 2 && normalize({ v: 2, fams: 3 }).fams && Array.isArray(normalize({ v: 2 }).attempts), "normalize");
-ok(defaultState().topics.find((t) => t.status === "aktif")?.id === "t1", "varsayılan aktif konu t1");
+ok(defaultState().topics.find((t) => t.status === "aktif")?.id === "tf", "varsayılan aktif konu: Fiil var mı?");
+const old = normalize({ v: 2, topics: [{ id: "t0", status: "tamam" }, { id: "t1", status: "tamam" }, { id: "t2", status: "aktif" }] });
+ok(old.topics.filter((t) => t.status === "aktif").length === 1 && old.topics.find((t) => t.id === "t2")!.status === "aktif" && old.topics.find((t) => t.id === "tf")!.status === "bekliyor", "eski kayıt: yeni konular bekliyor, tek aktif konu");
+ok(LESSONS.tf.parts.some((p) => p.tatbikat) && html.length > 0, "hızlı tatbikat tablosu var");
 
 console.log(`${passes} geçti, ${fails} kaldı`);
 if (fails) process.exit(1);

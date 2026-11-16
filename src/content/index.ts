@@ -5,8 +5,9 @@ import { BANK2 } from "./bank2";
 import { LESSONS1 } from "./lessons1";
 import { LESSONS2 } from "./lessons2";
 import "./lessons3"; // LESSONS2'ye ikinci partları ekler
+import { LESSONS4 } from "./lessons4";
 
-export const LESSONS: Record<string, Lesson> = { ...LESSONS1, ...LESSONS2 };
+export const LESSONS: Record<string, Lesson> = { ...LESSONS1, ...LESSONS2, ...LESSONS4 };
 
 export const qhash = (s: string) => {
   let h = 0;

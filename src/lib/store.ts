@@ -27,7 +27,11 @@ export function normalize(s: any): State {
   for (const k of ["fams", "seen"]) if (!s[k] || typeof s[k] !== "object") s[k] = {};
   s.profile = Object.assign(defaultProfile(), s.profile || {});
   if (!Array.isArray(s.topics) || s.topics.length !== CURRICULUM.length)
-    s.topics = CURRICULUM.map((c, i) => (s.topics || []).find((t: any) => t.id === c.id) || { id: c.id, status: i === 1 ? "aktif" : "bekliyor" });
+    s.topics = CURRICULUM.map((c) => (s.topics || []).find((t: any) => t.id === c.id) || { id: c.id, status: "bekliyor" });
+  if (!s.topics.some((t: any) => t.status === "aktif")) {
+    const next = s.topics.find((t: any, i: number) => i > 0 && t.status === "bekliyor");
+    if (next) next.status = "aktif";
+  }
   return s as State;
 }
 

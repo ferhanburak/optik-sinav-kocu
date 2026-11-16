@@ -56,6 +56,8 @@ export interface LessonPart {
   sence?: { soru: string; cevap?: string } | null;
   tablo?: { cols: string[]; rows: string[][] } | null;
   kutular?: { tur: string; metin: string }[];
+  /** Hızlı tatbikat: ilk sütun soru, diğer sütunlar cevap */
+  tatbikat?: { cols: string[]; rows: string[][] } | null;
   ornekler?: LessonExample[];
   ornek_soru?: { q: string; o?: string[]; a: number; cevap?: string } | null;
 }

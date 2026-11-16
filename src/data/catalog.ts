@@ -36,6 +36,7 @@ export const LABELS: Record<string, LabelDef> = {
 };
 export const CURRICULUM: Topic[] = [
   {w:0,id:"t0",t:"Seviye testi",kind:"mock",f:[]},
+  {w:1,id:"tf",t:"Altın kural: “Fiil var mı?”",f:["eh"]},
   {w:1,id:"t1",t:"Bağlaçlar: zıtlık",f:["eh"]},
   {w:1,id:"t2",t:"Bağlaçlar: sebep, sonuç, amaç",f:["eh"]},
   {w:1,id:"t3",t:"Bağlaçlar: koşul",f:["kosul","eh"]},
@@ -51,6 +52,8 @@ export const CURRICULUM: Topic[] = [
   {w:3,id:"t13",t:"Edatlar 2: Türkçe ek → edat, sıfat + edat",f:["edat"]},
   {w:3,id:"t14",t:"Phrasal verbs",f:["kelime"]},
   {w:3,id:"t15",t:"Kelime türetme",f:["turetme"]},
+  {w:3,id:"tk",t:"Kelime ve anlam tuzakları",f:["kelime"]},
+  {w:3,id:"tc",t:"10 saniyelik kontrol kartı",f:[]},
   {w:4,id:"t16",t:"Okuma stratejileri",f:["okuma"]},
   {w:4,id:"t17",t:"Paragraf tamamlama",f:["paragraf"]},
   {w:4,id:"t18",t:"Anlamı bozan cümle",f:["paragraf"]},
