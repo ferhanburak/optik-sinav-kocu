@@ -1,10 +1,10 @@
 // Optik Sınav Koçu (YDS) — ana kabuk: üst çubuk, sekmeler, tam ekran oynatıcı, pencereler
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { Modal, Pressable, Text, useColorScheme, View } from "react-native";
+import { Modal, Text, useColorScheme, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { diffDays, today } from "./src/lib/dates";
-import { nav, useNav, type Tab } from "./src/lib/nav";
+import { nav, useNav } from "./src/lib/nav";
 import { syncReminders } from "./src/lib/notify";
 import { load, S, useStore } from "./src/lib/store";
 import { MockPlayer } from "./src/players/MockPlayer";
@@ -18,16 +18,9 @@ import { Progress } from "./src/screens/Progress";
 import { Today } from "./src/screens/Today";
 import { Vocab } from "./src/screens/Vocab";
 import { Btn, T, Toasts } from "./src/ui/kit";
+import { FadeIn } from "./src/ui/motion";
+import { TabBar } from "./src/ui/TabBar";
 import { useColors } from "./src/ui/theme";
-
-const TABS: [Tab, string, string][] = [
-  ["bugun", "Bugün", "☀"],
-  ["plan", "Plan", "▦"],
-  ["defter", "Defter", "✎"],
-  ["kelimeler", "Kelimeler", "Aa"],
-  ["deneme", "Deneme", "◉"],
-  ["ilerleme", "İlerleme", "↗"],
-];
 
 function Brand() {
   const c = useColors();
@@ -57,20 +50,12 @@ function Main() {
         <Btn sm kind="ghost" title="Ayarlar" onPress={() => nav.modal({ kind: "settings" })} />
       </View>
       <View style={{ flex: 1, backgroundColor: c.bg }}>
-        <Screen />
+        <FadeIn key={n.tab} y={8} duration={200} style={{ flex: 1 }}>
+          <Screen />
+        </FadeIn>
       </View>
       <SafeAreaView edges={["bottom"]} style={{ backgroundColor: c.paper, borderTopWidth: 1, borderColor: c.line }}>
-        <View style={{ flexDirection: "row" }} accessibilityRole="tablist">
-          {TABS.map(([id, l, ic]) => {
-            const on = n.tab === id;
-            return (
-              <Pressable key={id} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => nav.tab(id)} style={{ flex: 1, alignItems: "center", paddingVertical: 8, borderTopWidth: 2.5, borderColor: on ? c.guide : "transparent" }}>
-                <Text style={{ fontSize: 16, color: on ? c.guide : c.muted }}>{ic}</Text>
-                <Text style={{ fontSize: 10.5, fontWeight: "600", color: on ? c.ink : c.muted }}>{l}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <TabBar value={n.tab} onChange={(t) => nav.tab(t)} />
       </SafeAreaView>
       <Modal visible={!!p} animationType="slide" onRequestClose={() => nav.close()}>
         <SafeAreaProvider>
