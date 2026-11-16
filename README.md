@@ -6,6 +6,8 @@ Her gün aynı döngü işler: ısınma, kelimeler, konu, çözümlü örnekler,
 
 - **Sınavlarım:** Uygulamanın merkezi. Eklenen sınavlar durumlarıyla (kalan gün, bugünün oturumu, son skor) görünür; yeni sınav buradan eklenir. Şu an YDS hazır; YÖKDİL, KPSS, ALES, TUS ve DUS "Yakında". Tek sınavı olan doğrudan o sınavın menüsüne, birden fazla sınavı olan bu ekrana açılır.
 - **Profil ve ayarlar:** Ad, eklenen sınavlar, bildirimler ve veri sıfırlama Profil'de durur (bütün sınavlar için ortak); sınav tarihi, hedef ve saatler her sınavın kendi ayarlarındadır.
+- **Plan:** Kullanıcı başta plan modelini (Uyarlanan, Sıralı, Açık kapama ağırlıklı), çalışma günlerini ve günlük süreyi seçer; sonrasını sistem yönetir. Günün türü (konu günü ya da açık kapama günü) ve yoğunluk sistemce belirlenir. Konu, testinde %70 ve üzeri alınca tamamlanır; biten konu yeniden açılabilir. Plan ekranında bugün ve yarın kesin, sonraki günler beklenen olarak görünür.
+- **Esneklik hakları:** Haftada iki hafif gün; gün atlamak serbesttir ama ertesi gün telafi gelir ve beklenen bitiş kayar. Açık kapatmayı istemek her zaman serbesttir.
 - **Gizli tekrar:** Hatalar türlerine göre gruplanır. Bir hata türünden yaptığın yanlış, sonraki günlerde yeni bir cümleyle yeniden sorulur.
 - **Defterler:** Yanlış defteri, karar notları, cep kartı ve çalışma defteri (PDF olarak paylaşılır).
 - **Çalışma defteri:** İlk oturumdan bugüne birikimlidir. Haftalık skorlar, alan alan gelişim, çalışılan konuların anlatımı, türüne göre hata analizi, her tuzak için yeni soruyla hata tekrar testi, kelimeler, cep kartı ve açıklamalı cevap anahtarı içerir.
