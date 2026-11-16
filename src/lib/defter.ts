@@ -130,14 +130,14 @@ function progressSection(): string {
     const l = ss.filter((s) => s.topic === t.id);
     return `<tr><td><b>${e(t.t)}</b></td><td>${bar(l[0].c, l[0].n)}</td><td>${l.length > 1 ? bar(l[l.length - 1].c, l[l.length - 1].n) : "—"}</td><td>${t.f.map((f) => lightLabel(fam(f).light)).join(" · ")}</td></tr>`;
   });
-  const topics = tp.length ? `<h3>Konular · ilk oturum → son durum</h3><table><tr><th>Konu</th><th>İlk oturum</th><th>Son oturum</th><th>Aile durumu</th></tr>${tp.join("")}</table>` : "";
+  const topics = tp.length ? `<h3>Konular · ilk oturum → son durum</h3><table><tr><th>Konu</th><th>İlk oturum</th><th>Son oturum</th><th>Durum</th></tr>${tp.join("")}</table>` : "";
 
   // Özet kutuları
   const fe = famEntries();
   const good: string[] = [];
   fe.filter(([, f]) => f.light === "green" && f.wrong > 0).forEach(([k, f]) => good.push(`<b>Eski tuzak kapandı:</b> ${e(FAMILIES[k].n)} (${f.wrong} yanlıştan sonra üst üste ${f.streak} doğru).`));
   const clean = fe.filter(([, f]) => f.light === "green" && !f.wrong).map(([k]) => FAMILIES[k].n);
-  if (clean.length) good.push(`<b>Sorunsuz aileler:</b> ${e(clean.join(", "))}.`);
+  if (clean.length) good.push(`<b>Sorunsuz hata türleri:</b> ${e(clean.join(", "))}.`);
   const recent = ss.filter((s) => s.date >= addDays(today(), -6));
   const best = recent.slice().sort((a, b) => b.p - a.p)[0];
   if (best) good.push(`<b>Haftanın en iyi oturumu:</b> ${fmtShort(best.date)} · ${e(sessionTitle(best))} ${best.c}/${best.n} (%${best.p}).`);
@@ -145,12 +145,12 @@ function progressSection(): string {
   fe.filter(([, f]) => f.light === "red").slice(0, 3).forEach(([k, f]) => open.push(`<b>${e(FAMILIES[k].n)}:</b> ${f.wrong} yanlış, hâlâ açık. Kontrol: ${e(FAMILIES[k].tool)}`));
   const wr = S.attempts.filter((a) => a.t > Date.now() - 7 * 864e5 && !a.ok);
   const sure = wr.filter((a) => !a.u).length;
-  if (wr.length >= 3 && sure / wr.length >= 0.6) open.push(`<b>Kontrol:</b> son 7 günün ${wr.length} yanlışının ${sure} tanesi emin olarak yapıldı. Bilgi var, kontrol eksik: aile → etiket → şık.`);
+  if (wr.length >= 3 && sure / wr.length >= 0.6) open.push(`<b>Kontrol:</b> son 7 günün ${wr.length} yanlışının ${sure} tanesi emin olarak yapıldı. Bilgi var, kontrol eksik: soru tipi → etiket → şık.`);
   const timed = S.attempts.filter((a) => a.t > Date.now() - 7 * 864e5 && a.s);
   const spq = timed.length ? Math.round(timed.reduce((x, a) => x + a.s, 0) / timed.length) : null;
   if (spq && spq < 75) open.push(`<b>Hız:</b> soru başına ortalama ${spq} sn (hedef ≥75 sn).`);
   const red = fe.find(([, f]) => f.light === "red");
-  const goal = red ? `<b>${e(FAMILIES[red[0]].n)}:</b> ${e(FAMILIES[red[0]].tool)} Hata tekrar testinde bu aileden yeni sorular var; önce onları çöz.` : spq && spq < 75 ? "Her soruda etiketi yazmadan şıklara geçme; soru başına en az 75 sn." : "Bir deneme çöz ve 10 saniyelik kontrolü tam denemede uygula.";
+  const goal = red ? `<b>${e(FAMILIES[red[0]].n)}:</b> ${e(FAMILIES[red[0]].tool)} Hata tekrar testinde bu türden yeni sorular var; önce onları çöz.` : spq && spq < 75 ? "Her soruda etiketi yazmadan şıklara geçme; soru başına en az 75 sn." : "Bir deneme çöz ve 10 saniyelik kontrolü tam denemede uygula.";
   return `${cards}${trend}${areas}${topics}
 ${good.length ? box("ok", "🌱 Oturanlar", list(good)) : ""}${open.length ? box("bad", "🎯 Hâlâ açık olanlar", list(open, true)) : ""}${box("ok", "💡 Bu haftanın tek hedefi", `<p>${goal}</p>`)}`;
 }
@@ -158,7 +158,7 @@ ${good.length ? box("ok", "🌱 Oturanlar", list(good)) : ""}${open.length ? box
 function lessonSection(title: string, d: Lesson, fams: string[]): string {
   const att = S.attempts.filter((a) => fams.includes(a.fam));
   const mine = S.mistakes.filter((m) => fams.includes(m.fam));
-  const intro = att.length ? `<p>Bu konunun ailelerinden <b>${att.length}</b> soru çözdün; ilk denemede <b>%${pct(att.filter((a) => a.ok).length, att.length)}</b>. Durum: ${fams.map((f) => `${e(FAMILIES[f].n)} <b>${lightLabel(fam(f).light)}</b>`).join(" · ")}.</p>` : "";
+  const intro = att.length ? `<p>Bu konunun hata türlerinden <b>${att.length}</b> soru çözdün; ilk denemede <b>%${pct(att.filter((a) => a.ok).length, att.length)}</b>. Durum: ${fams.map((f) => `${e(FAMILIES[f].n)} <b>${lightLabel(fam(f).light)}</b>`).join(" · ")}.</p>` : "";
   const parts = (d.parts || [])
     .map(
       (p, i) =>
@@ -228,7 +228,7 @@ export function defterHTML(): string {
   const cover = `<div class="cover"><div class="k">YDS · KİŞİSEL ÇALIŞMA DEFTERİ</div><h1>YDS Çalışma Defteri</h1><p style="font-size:16px">Konu anlatımların, çözümlü örnekler, hata analizin ve hata tekrar testin. Adım adım, tekrar edilebilir.</p>
 <div class="stats"><div class="stat"><span>Sınav</span><b>${p.examSet ? fmtShort(p.examDate) : "—"}</b></div><div class="stat"><span>Hedef</span><b>${p.target}+</b></div><div class="stat"><span>Sınava kalan</span><b>${p.examSet && left >= 0 ? left + " gün" : "—"}</b><span>${fmtShort(today())} itibarıyla</span></div></div>
 <div class="k">BU DEFTERDE</div><ul><li>${topics.length} konu bölümü, ${exN} çözümlü örnek</li><li>${S.mistakes.length} hatanın türüne göre analizi</li><li>${retest.length} soruluk hata tekrar testi</li><li>${S.vocab.length} kelime ve kalıp</li><li>Cep kartı</li><li>Açıklamalı cevap anahtarı</li></ul>
-<p class="q">“${famEntries().some(([, f]) => f.light === "red") ? "Aynı tuzağa ikinci kez düşmemek, yeni konu öğrenmekten hızlı puan getirir." : "Bilgi sende. Her boşlukta 10 saniyelik kontrol: aile → etiket → şık."}”</p>
+<p class="q">“${famEntries().some(([, f]) => f.light === "red") ? "Aynı tuzağa ikinci kez düşmemek, yeni konu öğrenmekten hızlı puan getirir." : "Bilgi sende. Her boşlukta 10 saniyelik kontrol: soru tipi → etiket → şık."}”</p>
 <p style="margin-top:60px;font-size:12px">Hafta ${weeks} · ${fmtDate(first)} – ${fmtDate(today())} · Cevap anahtarı en sonda</p></div>`;
   const toc = `<h2>İçindekiler</h2><table class="toc">${secs.map((s, i) => `<tr><td>${i + 1}</td><td><b>${e(s.t)}</b></td><td>${e(s.d)}</td></tr>`).join("")}</table>
 <h2 style="margin-top:18px">Bu defter nasıl kullanılır?</h2><div class="cards"><div class="card"><b style="font-size:13px">1 · Önce konuyu oku</b><small>Her bölüm kuralın mantığıyla başlar, sonra çözümlü örnekler gelir.</small></div><div class="card"><b style="font-size:13px">2 · Hata analizine bak</b><small>Hatalar türüne göre gruplu; “tekrar” rozeti aynı tuzağa yeniden düştüğünü gösterir.</small></div><div class="card"><b style="font-size:13px">3 · Hata tekrar testi</b><small>Her tuzak için yeni soru. Süre tut: soru başına ~75 sn, önce etiketi yaz.</small></div><div class="card"><b style="font-size:13px">4 · Cep kartı</b><small>Akşam tekrarında ya da sınav sabahı ona bak.</small></div></div>`;

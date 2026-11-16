@@ -19,7 +19,7 @@ export function DrillPlayer({ f }: { f: string }) {
   return (
     <Shell title={FAMILIES[f].n} onClose={nav.close} scrollKey={P.i} progress={P.qs.length ? P.i / P.qs.length : 0}>
       {!P.qs.length ? (
-        <Notice text="Bu aile için hazır soru bulunamadı." />
+        <Notice text="Bu hata türü için hazır soru bulunamadı." />
       ) : done ? (
         <>
           <Card>
@@ -77,7 +77,7 @@ export function PlacementPlayer() {
             <T v="small" muted>{n} soruluk kısa testten kaba bir tahmin. Denemeler çözdükçe netleşir.</T>
           </Card>
           <Card>
-            <T v="h3">Aileler</T>
+            <T v="h3">Hata türleri</T>
             <Table rows={Object.entries(by).sort((a, b) => a[1].c / a[1].n - b[1].c / b[1].n).map(([k, b]) => [FAMILIES[k].n, `${b.c}/${b.n}`, <LightBadge key={k} l={fam(k).light} />])} />
           </Card>
           <Row><Spacer /><Btn kind="pri" title="Başlayalım ›" onPress={() => { nav.close(); nav.tab("bugun"); toast("Hazırız. Bugünün oturumu “Başla” ile açılır.", 6000); }} /></Row>

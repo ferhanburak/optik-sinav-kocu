@@ -25,7 +25,7 @@ export function sessionPlanLines(short: boolean): [string, string][] {
   const due = dueFams();
   const review = !t || t.kind === "review";
   const set: [string, string] = ["Set", `${short ? 5 : 16} soru${due.length && !S.tanima ? " · gizli tekrarlar içinde" : ""} · yaklaşık ${short ? 20 : S.profile.dailyMin} dk`];
-  const head: [string, string] = S.tanima ? ["Konu", "Seni tanıma: her hata ailesinden karışık teşhis soruları"] : ["Konu", review ? (t ? t.t : "Pekiştirme") : t!.t];
+  const head: [string, string] = S.tanima ? ["Konu", "Seni tanıma: her hata türünden karışık teşhis soruları"] : ["Konu", review ? (t ? t.t : "Pekiştirme") : t!.t];
   return [head, ["Isınma", `${short ? 3 : 6} soru`], ["Kelime", short ? "dünkülerden 5 tekrar" : "15 yeni + dünkülerden 5 tekrar"], set];
 }
 
@@ -213,15 +213,15 @@ export function Today() {
         <Tile i={1} v={acc === null ? "—" : `%${acc}`} l="ilk denemede" sub="son 7 gün" />
         <Tile i={2} v={spq ? `${spq} sn` : "—"} l="soru başına" sub={spq ? (spq < 75 ? "hedef ≥75 sn" : "hedefte") : "veri yok"} warn={!!spq && spq < 75} />
         <Tile i={3} v={streakDays() || "—"} l="gün seri" sub={s.sessions.length ? `${s.sessions.length} oturum` : "henüz yok"} />
-        <Tile i={4} v={<Text><Text style={{ color: c.bad }}>{lights.red}</Text> · <Text style={{ color: c.warn }}>{lights.yellow}</Text> · <Text style={{ color: c.ok }}>{lights.green}</Text></Text>} l="hata ailesi" sub="açık · düzeliyor · oturdu" />
+        <Tile i={4} v={<Text><Text style={{ color: c.bad }}>{lights.red}</Text> · <Text style={{ color: c.warn }}>{lights.yellow}</Text> · <Text style={{ color: c.ok }}>{lights.green}</Text></Text>} l="hata türü" sub="açık · düzeliyor · oturdu" />
         <Tile i={5} v={s.vocab.length || "—"} l="kelime" sub={vdue ? `${vdue} tekrar bekliyor` : "tekrar yok"} />
       </Row>
 
       {s.tanima ? (
         <Card>
-          <Row><T v="h3">Seni tanıma aşaması</T><Spacer /><T v="mono">{famsKnown()}/{TANIMA_GOAL} aile</T></Row>
+          <Row><T v="h3">Seni tanıma aşaması</T><Spacer /><T v="mono">{famsKnown()}/{TANIMA_GOAL} hata türü</T></Row>
           <Row><Bar value={pct(famsKnown(), TANIMA_GOAL)} color={c.warn} /></Row>
-          <T v="small" muted>Oturumlar şimdilik teşhis ağırlıklı. {TANIMA_GOAL} ailede veri oluşunca konu anlatımlarına geçilir.</T>
+          <T v="small" muted>Oturumlar şimdilik teşhis ağırlıklı. {TANIMA_GOAL} hata türünde veri oluşunca konu anlatımlarına geçilir.</T>
         </Card>
       ) : null}
 
@@ -234,12 +234,12 @@ export function Today() {
           icon="hedef"
           title="Seviye testi"
           badge={place ? undefined : "Önerilen"}
-          desc={place ? `Son: ${place.c}/${place.n} · ${fmtShort(place.date)}` : `${PLACEMENT.length} soru, ~40 dk. Her hata ailesinden sorar; planın sonuca göre kurulur.`}
+          desc={place ? `Son: ${place.c}/${place.n} · ${fmtShort(place.date)}` : `${PLACEMENT.length} soru, ~40 dk. Her hata türünden sorar; planın sonuca göre kurulur.`}
           onPress={() => nav.open({ kind: "place" })}
         />
         <Action i={1} icon="deneme" title="Deneme" desc={lastMock ? `Son: ${lastMock.c}/${lastMock.n} · puan ${lastMock.score}` : "Tam, yarım ya da mini; gerçek YDS dağılımında"} onPress={() => nav.tab("deneme")} />
-        <Action i={2} icon="ilerleme" title="Zayıf aileni çalış" disabled={!weakest} desc={weakest ? `${FAMILIES[weakest[0]].n} · ${lightLabel(weakest[1].light)}` : "Soru çözdükçe en zayıf ailen burada çıkar"} onPress={() => weakest && nav.open({ kind: "drill", f: weakest[0] })} />
-        <Action i={3} icon="defter" title="Yanlış defteri" disabled={!misN} desc={misN ? `${misN} kayıt · ${lights.red} açık aile` : "Yanlışların ailesine göre burada birikir"} onPress={() => nav.tab("defter", "yanlis")} />
+        <Action i={2} icon="ilerleme" title="Zayıf noktanı çalış" disabled={!weakest} desc={weakest ? `${FAMILIES[weakest[0]].n} · ${lightLabel(weakest[1].light)}` : "Soru çözdükçe en zayıf hata türün burada çıkar"} onPress={() => weakest && nav.open({ kind: "drill", f: weakest[0] })} />
+        <Action i={3} icon="defter" title="Yanlış defteri" disabled={!misN} desc={misN ? `${misN} kayıt · ${lights.red} açık hata türü` : "Yanlışların türüne göre burada birikir"} onPress={() => nav.tab("defter", "yanlis")} />
         <Action i={4} icon="kelimeler" title="Kelime tekrarı" desc={s.vocab.length ? `${vdue} tekrar bekliyor · ${s.vocab.length} kelime` : "İlk oturumda 15 kelime eklenir"} onPress={() => (s.vocab.length ? nav.open({ kind: "vrev" }) : nav.tab("kelimeler"))} />
         {place ? <Action i={5} icon="plan" title="Plan" desc={t ? t.t : "Bütün konular tamam"} onPress={() => nav.tab("plan")} /> : null}
       </Row>
@@ -251,7 +251,7 @@ export function Today() {
       </Card>
 
       <Card>
-        <Row><T v="h3">Hata aileleri</T><Spacer /><Pressable hitSlop={8} onPress={() => nav.tab("defter", "yanlis")}><T v="small" color={c.guide} style={{ fontWeight: "600" }}>Defter ›</T></Pressable></Row>
+        <Row><T v="h3">Hata türleri</T><Spacer /><Pressable hitSlop={8} onPress={() => nav.tab("defter", "yanlis")}><T v="small" color={c.guide} style={{ fontWeight: "600" }}>Defter ›</T></Pressable></Row>
         {famEntries().length ? (
           famEntries().slice(0, 5).map(([k, f]) => (
             <Row key={k} wrap={false} style={{ borderTopWidth: 1, borderColor: c.line, paddingTop: 10 }}>
@@ -263,7 +263,7 @@ export function Today() {
             </Row>
           ))
         ) : (
-          <T v="small" muted>Seviye testi ya da ilk oturumdan sonra her ailenin durumu burada görünür.</T>
+          <T v="small" muted>Seviye testi ya da ilk oturumdan sonra her hata türünün durumu burada görünür.</T>
         )}
       </Card>
 

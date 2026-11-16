@@ -37,9 +37,9 @@ export function Progress() {
         <T v="small" muted>Resmî skor ilk denemedir. İpucuyla ya da ikinci denemede bulduğun cevaplar “sonunda” olarak ayrı görünür.</T>
       </Card>
       <Card>
-        <Row><T v="h3">Hata aileleri</T><Spacer /><T v="small" muted>🟢 = üst üste 2 doğru</T></Row>
+        <Row><T v="h3">Hata türleri</T><Spacer /><T v="small" muted>🟢 = üst üste 2 doğru</T></Row>
         {fams.length ? (
-          <Table cols={["Aile", "Durum", "Yanlış", "Seri", "Tekrar"]} rows={fams.map(([k, f]) => [FAMILIES[k].n, <LightBadge key={k} l={f.light} />, String(f.wrong), String(f.streak), f.due ? fmtShort(f.due) : "—"])} />
+          <Table cols={["Tür", "Durum", "Yanlış", "Seri", "Tekrar"]} rows={fams.map(([k, f]) => [FAMILIES[k].n, <LightBadge key={k} l={f.light} />, String(f.wrong), String(f.streak), f.due ? fmtShort(f.due) : "—"])} />
         ) : (
           <Empty text="Henüz veri yok." />
         )}

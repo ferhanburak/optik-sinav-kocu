@@ -18,7 +18,7 @@ export const FAMILIES: Record<string, { n: string; lab: string; tool: string }> 
   isimcumle:{n:"İsim cümlecikleri",lab:"TE",tool:"Parantez testi: that / whether / what sonrası tam mı eksik mi?"},
   relative:{n:"Relative clauses",lab:"TE",tool:"T/E testi: tam → where / when / edat + which · eksik → who / which / that · iyelik → whose."},
   modal:{n:"Modals",lab:"",tool:"Geçmiş çıkarım: must have V3 · gereksiz yapılan: needn't have V3 · pişmanlık: should have V3."},
-  fiilkalip:{n:"Fiil kalıpları (to V / V-ing)",lab:"",tool:"avoid / deny / consider + V-ing · decide / manage / fail + to V · to-edat ailesi + V-ing (look forward to)."},
+  fiilkalip:{n:"Fiil kalıpları (to V / V-ing)",lab:"",tool:"avoid / deny / consider + V-ing · decide / manage / fail + to V · to edatlı kalıplar + V-ing (look forward to)."},
   usedto:{n:"used to / be used to",lab:"",tool:"be yoksa V1, be varsa V-ing."},
   kelime:{n:"Kelime anlamı ve geçişlilik",lab:"TR",tool:"Önce boşluğa kendi Türkçe kelimeni koy, sonra şıklarda ara."},
   okuma:{n:"Okuma: kanıt",lab:"KANIT",tool:"Her cevaba parçadan 4–6 kelimelik kanıt satırı. Kanıt yoksa cevap yok."},
@@ -82,7 +82,7 @@ export const TRICKS: [string, string][] = [
   ["Çapa","Tense'e şıklara bakarak değil, çapaya bakarak karar ver: ipucu → tense."],
   ["Kanıt","Kanıt yoksa cevap yok. Yorum yapma, parçada ne yazıyorsa o."],
   ["Hız","Soru başına en az ~75 sn. Hızlanınca bilinen kural kaçıyor."],
-  ["10 sn kontrol","Hangi aile? (E/H, çapa, devrik, T/E, tür) → etiketi yaz → sonra şık."],
+  ["10 sn kontrol","Hangi soru tipi? (E/H, çapa, devrik, T/E, kelime türü) → etiketi yaz → sonra şık."],
   ["30 sn reset","Kalemi bırak, 3 nefes al, soru kökünü yeniden oku, kanıtı yaz."]
 ];
 export const DIAG = ["Kuralı bilmiyordum","Kuralı karıştırdım","Hızlı geçtim","Etiketi yazmadım","Kelimeyi bilmiyordum","Şıkları yanlış eledim","Yanlış tıkladım"];

@@ -417,9 +417,9 @@ export function decisionFor(s: Summary, topic: Topic | null, since: number): Dec
   const repsBad = s.reps.filter((r) => !r.ok).map((r) => FAMILIES[r.fam].n);
   return {
     guclu: strong.length ? strong.join(", ") + " sorunsuz." : s.c ? `İlk denemede ${s.c}/${s.n} doğru.` : "",
-    zayif: weak.length ? weak.slice(0, 3).map(([k, b]) => `${FAMILIES[k].n} ${b.c}/${b.n}`).join(" · ") : "Bu oturumda zayıf aile çıkmadı.",
+    zayif: weak.length ? weak.slice(0, 3).map(([k, b]) => `${FAMILIES[k].n} ${b.c}/${b.n}`).join(" · ") : "Bu oturumda zayıf hata türü çıkmadı.",
     teshis: teshis.join(" ") || "Belirgin bir hata kalıbı yok.",
-    onlem: w0 ? `${FAMILIES[w0].n}: ${FAMILIES[w0].tool}` : "10 sn kontrolünü sürdür: aile → etiket → şık.",
+    onlem: w0 ? `${FAMILIES[w0].n}: ${FAMILIES[w0].tool}` : "10 sn kontrolünü sürdür: soru tipi → etiket → şık.",
     yarin: [
       topic ? `Konu: ${topic.t}.` : "",
       repsBad.length ? `Gizli tekrarda kaçanlar yeniden sorulacak: ${repsBad.join(", ")}.` : w0 ? `Isınmada ${FAMILIES[w0].n} tekrar edilecek.` : "",
@@ -444,7 +444,7 @@ export function weeklyCoach(): { iyi: string[]; acik: string[]; oncelik: string[
   iyi.push(`Bu hafta ${wk.length} soru, ilk denemede %${pct(wk.filter((a) => a.ok).length, wk.length)} doğru.`);
   secs.filter(([, b]) => b.c / b.n >= 0.75).slice(0, 2).forEach(([k, b]) => iyi.push(`${SECTIONS[k]}: %${pct(b.c, b.n)}`));
   const greens = famEntries().filter(([, f]) => f.light === "green").map(([k]) => FAMILIES[k].n);
-  if (greens.length) iyi.push(`Oturan aileler: ${greens.slice(0, 4).join(", ")}.`);
+  if (greens.length) iyi.push(`Oturan hata türleri: ${greens.slice(0, 4).join(", ")}.`);
   const reds = famEntries().filter(([, f]) => f.light === "red");
   reds.slice(0, 3).forEach(([k, f]) => acik.push(`${FAMILIES[k].n}: ${f.wrong} yanlış, durum açık.`));
   secs.filter(([, b]) => b.c / b.n < 0.55).slice(-2).forEach(([k, b]) => acik.push(`${SECTIONS[k]}: %${pct(b.c, b.n)}`));

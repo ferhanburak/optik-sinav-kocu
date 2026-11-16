@@ -59,7 +59,7 @@ tk:{mantik:"Kelime sorusunda anlamdan önce iki şeye bak:\n- **1. Nesne var mı
 
 tc:{mantik:"Dilbilgisi boşluklarının çoğu bilgi eksiğinden değil, **kontrol** eksiğinden kaçar. Her boşlukta 10 saniye:\n- **1. E/H:** bağlaç mı edat mı? Virgüle kadar fiil var mı?\n- **2. Tam mı eksik mi?** who / which / where / whose için boşluktan sonrası.\n- **3. Çapa:** tense için ipucu → tense.\n- **4. Kalıp:** edat ya da fiil kalıbı (object to + V-ing, depend on).",
  terimler:[{terim:"Kontrol turu",tanim:"Deneme bitmeden önce, emin olarak işaretlenen dilbilgisi sorularına 10 saniyelik kartla yeniden bakmak.",ornek:"İlk 26 soruda etiket yazılmamış olanları kontrol et."}],
- kontrol:["Hangi aile? (E/H · T/E · çapa · tür · kalıp)","Etiketi şıklara bakmadan yaz.","Şık etiketle uyuşuyor mu? (çapraz kontrol)","Soru başına en az ~75 sn."],
+ kontrol:["Hangi soru tipi? (E/H · T/E · çapa · kelime türü · kalıp)","Etiketi şıklara bakmadan yaz.","Şık etiketle uyuşuyor mu? (çapraz kontrol)","Soru başına en az ~75 sn."],
  parts:[
  {baslik:"Dört soru, on saniye",anlatim:"Boşluğun tipine göre tek bir kontrol yeter. Kartın amacı bildiğin kuralı **her seferinde** uygulatmak.",
   sence:{soru:"Emin olarak işaretlediğin bir soruyu neden yeniden kontrol edesin?",cevap:"Çünkü hızlı çözülen sorulardaki yanlışların çoğu emin olunan sorulardır: bilgi var, kontrol yok."},
@@ -79,5 +79,5 @@ tc:{mantik:"Dilbilgisi boşluklarının çoğu bilgi eksiğinden değil, **kontr
    {q:"The results of the survey proved highly ---- for local planners.",o:["use","usefully","usefulness","useful","used"],a:3,neden:"prove + highly + ___ → sıfat: useful.",celdiriciler:["İsim / fiil.","Zarf.","İsim.","","V3; anlam uymaz."]}],
   ornek_soru:{q:"The decline in sales has been attributed mainly ---- the rise in online shopping.",o:["for","with","on","to","from"],a:3,cevap:"Zarfı atla: attribute … to."}}],
  tuzaklar:["Emin olduğun soruda etiketi yazmadan geçmek.","Hızlanan son bölümde kontrolü bırakmak.","Etiket doğru, şık yanlış: çapraz kontrol yapmamak.","Kalıbı araya giren zarf yüzünden tanımamak.","Kontrol turuna süre bırakmamak."],
- hatirlanacaklar:["Her boşlukta 10 saniye: aile → etiket → şık.","E/H → tam mı eksik mi? → çapa → kalıp.","Etiket ile şıkkın türü uyuşmalı.","Soru başına en az ~75 sn; hız hataya dönüşür.","Deneme sonunda emin olduğun dilbilgisi sorularına kontrol turu at."]},
+ hatirlanacaklar:["Her boşlukta 10 saniye: soru tipi → etiket → şık.","E/H → tam mı eksik mi? → çapa → kalıp.","Etiket ile şıkkın türü uyuşmalı.","Soru başına en az ~75 sn; hız hataya dönüşür.","Deneme sonunda emin olduğun dilbilgisi sorularına kontrol turu at."]},
 };

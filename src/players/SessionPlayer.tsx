@@ -275,11 +275,11 @@ function Eval({ P }: { P: P }) {
         </Row>
         {s.h1 !== null && s.h2 !== null ? <T v="small">Setin ilk yarısı %{s.h1}, ikinci yarısı %{s.h2}.{s.h2 < s.h1 - 10 ? " Yanlışlar hızlanan ikinci yarıda toplanmış." : ""}</T> : null}
         {s.unsure ? <T v="small">★ Emin olmadan işaretlediğin {s.unsure} sorunun {s.unsureOk} tanesi doğru.</T> : null}
-        {s.sureWrong ? <T v="small"><Text style={{ fontWeight: "700" }}>Emin olup yanlış yaptığın {s.sureWrong} soru var:</Text> bilgi var ama kontrol eksik olabilir. 10 saniyelik kontrolü uygula: aile → etiket → şık.</T> : null}
+        {s.sureWrong ? <T v="small"><Text style={{ fontWeight: "700" }}>Emin olup yanlış yaptığın {s.sureWrong} soru var:</Text> bilgi var ama kontrol eksik olabilir. 10 saniyelik kontrolü uygula: soru tipi → etiket → şık.</T> : null}
         {s.reps.length ? <T v="small">Gizli tekrarlar: {s.reps.map((r) => `${FAMILIES[r.fam].n} ${r.ok ? "✓" : "✗"}`).join(" · ")}</T> : null}
       </Card>
       <Card>
-        <T v="h3">Aileler</T>
+        <T v="h3">Hata türleri</T>
         <Table rows={Object.entries(s.byFam).map(([k, b]) => [FAMILIES[k].n, `${b.c}/${b.n}`, <LightBadge key={k} l={fam(k).light} />])} />
       </Card>
       {P.decision ? (
@@ -291,7 +291,7 @@ function Eval({ P }: { P: P }) {
       {P.wasTanima ? (
         <Card>
           <T v="h3">Seni tanıma aşaması</T>
-          <T v="small">{P.tanimaDone ? "Tamamlandı. Eksiklerin belirlendi; bir sonraki oturumdan itibaren konu anlatımlarıyla devam ediyoruz." : `${famsKnown()}/${TANIMA_GOAL} hata ailesinde veri var. Bir iki oturum daha teşhis ağırlıklı devam edeceğiz.`}</T>
+          <T v="small">{P.tanimaDone ? "Tamamlandı. Eksiklerin belirlendi; bir sonraki oturumdan itibaren konu anlatımlarıyla devam ediyoruz." : `${famsKnown()}/${TANIMA_GOAL} hata türünde veri var. Bir iki oturum daha teşhis ağırlıklı devam edeceğiz.`}</T>
           <Row><Btn kind="pri" title="Bitir" onPress={nav.close} /></Row>
         </Card>
       ) : (

@@ -91,7 +91,7 @@ function IntroChoice({ sk }: { sk: "normal" | "short" | "A" | "B" }) {
   return (
     <Sheet onClose={close}>
       <T v="h3">Seviye testi olmadan mı başlayalım?</T>
-      <T>Testi atlarsan ilk günlerde konu anlatımından çok <T style={{ fontWeight: "700" }}>seni tanımaya yönelik</T> çalışacağız. Oturumlar her hata ailesinden karışık teşhis soruları ağırlıklı olacak. Eksiklerin belirlenince (yaklaşık 3 oturum) konulara geçeceğiz.</T>
+      <T>Testi atlarsan ilk günlerde konu anlatımından çok <T style={{ fontWeight: "700" }}>seni tanımaya yönelik</T> çalışacağız. Oturumlar her hata türünden karışık teşhis soruları ağırlıklı olacak. Eksiklerin belirlenince (yaklaşık 3 oturum) konulara geçeceğiz.</T>
       <T v="small" muted>{PLACEMENT.length} soruluk seviye testi (~40 dk) bu süreci tek seferde kısaltır; analizle planın ilk günden sana göre kurulur.</T>
       <T style={{ fontWeight: "700" }}>Bunu kabul ediyor musun? Emin misin?</T>
       <Btn kind="pri" title="Seviye testini çözeyim (önerilen)" onPress={() => nav.open({ kind: "place" })} />

@@ -65,7 +65,7 @@ function FamCard({ k }: { k: string }) {
       </Row>
       <Box kind="puf" title="Kontrol aracı"><T v="small">{FAMILIES[k].tool}</T></Box>
       <Row>
-        <Btn sm kind="pri" title="Bu aileden 3 soru çöz" onPress={() => nav.open({ kind: "drill", f: k })} />
+        <Btn sm kind="pri" title="Bu türden 3 soru çöz" onPress={() => nav.open({ kind: "drill", f: k })} />
         {ms.length ? <Btn sm title={open ? "Kayıtları gizle" : `${ms.length} kaydı göster`} onPress={() => { ease(); setOpen(!open); }} /> : null}
       </Row>
       {open ? ms.slice().reverse().map((m) => <MistakeRow key={m.id} m={m} />) : null}
@@ -86,7 +86,7 @@ export function Defter() {
   let body: React.ReactNode = null;
   if (tab === "yanlis") {
     const ids = [...new Set([...Object.keys(s.fams), ...s.mistakes.map((m) => m.fam)])].filter((k) => FAMILIES[k]).sort((a, b) => LIGHT_ORDER[fam(a).light] - LIGHT_ORDER[fam(b).light]);
-    body = ids.length ? ids.map((k) => <FamCard key={k} k={k} />) : <Empty text="Henüz yanlış yok. Oturumlarda yaptığın her yanlış ve emin olmadan doğru yaptığın her soru burada ailesine göre birikir." />;
+    body = ids.length ? ids.map((k) => <FamCard key={k} k={k} />) : <Empty text="Henüz yanlış yok. Oturumlarda yaptığın her yanlış ve emin olmadan doğru yaptığın her soru burada hata türüne göre birikir." />;
   } else if (tab === "notlar") {
     const tc = note ? CURRICULUM.find((x) => x.id === note) : null;
     body = tc && LESSONS[tc.id] ? (
@@ -134,7 +134,7 @@ export function Defter() {
         </Card>
         <Card>
           <T v="h3">Kontrol araçları</T>
-          <Table cols={["Hata ailesi", "Kontrol"]} rows={Object.values(FAMILIES).map((f) => [f.n, f.tool])} />
+          <Table cols={["Hata türü", "Kontrol"]} rows={Object.values(FAMILIES).map((f) => [f.n, f.tool])} />
         </Card>
       </>
     );

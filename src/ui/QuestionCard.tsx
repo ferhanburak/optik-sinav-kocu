@@ -155,13 +155,13 @@ export function QuestionCard({ q, st, meta, src, onNext }: { q: Question; st: Ca
           ) : q.lab && L ? (
             <T v="small" muted>Beklenen etiket: {q.lab}</T>
           ) : null}
-          <T v="small" muted>Aile: {fam.n} · {fam.tool}</T>
+          <T v="small" muted>Hata türü: {fam.n} · {fam.tool}</T>
           {q.rep ? (
             <T v="small" color={c.guide}>
               🔁 Bu bir gizli tekrardı: {q.repFrom ? `${q.repFrom} tarihli ` : ""}“{fam.n}” tuzağının aynısı.{fc && fc.before !== fc.after ? ` Durum: ${lightLabel(fc.before)} → ${lightLabel(fc.after)}.` : ""}
             </T>
           ) : fc && fc.before !== fc.after ? (
-            <T v="small" color={c.guide}>Aile durumu: {lightLabel(fc.before)} → {lightLabel(fc.after)}</T>
+            <T v="small" color={c.guide}>Durum: {lightLabel(fc.before)} → {lightLabel(fc.after)}</T>
           ) : null}
         </FadeIn>
       ) : null}

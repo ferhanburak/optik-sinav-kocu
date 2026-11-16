@@ -105,7 +105,7 @@ export const POCKET: PocketBox[] = [
     t: "10 · 10 saniyelik kontrol",
     warn: true,
     items: [
-      "Hangi aile? (E/H · çapa · devrik · T/E · tür) → **etiketi yaz** → sonra şık.",
+      "Hangi soru tipi? (E/H · çapa · devrik · T/E · kelime türü) → **etiketi yaz** → sonra şık.",
       "Soru başına en az ~75 sn. Hızlanınca bilinen kural kaçıyor.",
       "Okumada **kanıt yoksa cevap yok**: parçadan 4–6 kelimelik satırı göster.",
       "Odak dağıldıysa 30 sn reset: kalemi bırak, 3 nefes, soru kökünü yeniden oku.",

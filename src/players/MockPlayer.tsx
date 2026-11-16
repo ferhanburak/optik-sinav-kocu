@@ -199,7 +199,7 @@ function ResultView({ P, label }: { P: any; label: string }) {
       </Card>
       <Card>
         <T v="h3">Soruları incele</T>
-        <T v="small" muted>Yanlışların ve emin olmadan doğru yaptıkların yanlış defterine ailesiyle eklendi.</T>
+        <T v="small" muted>Yanlışların ve emin olmadan doğru yaptıkların yanlış defterine hata türüyle eklendi.</T>
         {P.qs.map((q: any, i: number) => {
           const a = P.ans[i];
           const s = a === null ? c.muted : a === q.a ? c.ok : c.bad;
