@@ -1,10 +1,11 @@
 // Soru kartı: önce etiket → şıklar → yanlışta ipucu + ikinci deneme → açıklama ve "Neden bunu seçtin?"
 import React, { useReducer } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Animated, Text, View } from "react-native";
 import { DIAG, FAMILIES, LABELS, LETTERS, SECTIONS } from "../data/catalog";
 import { cardPick, labelType, lightLabel, saveDiag } from "../lib/engine";
 import type { CardState, Question } from "../types";
 import { Btn, Chip, Inl, Input, Row, Spacer, T } from "./kit";
+import { FadeIn, Press, haptic, useAnswerFx } from "./motion";
 import { useColors } from "./theme";
 
 export function Passage({ text }: { text: string }) {
@@ -21,13 +22,17 @@ export function Opt({ i, text, state, onPress, disabled, sub }: { i: number; tex
   const border = state === "right" ? c.ok : state === "wrong" ? c.bad : state === "picked" ? c.ink : c.line;
   const bg = state === "right" ? c.okSoft : state === "wrong" ? c.badSoft : c.paper;
   const bubble = state === "picked" || state === "right" || state === "wrong";
+  const fx = useAnswerFx(state);
   return (
-    <Pressable
+    <Animated.View style={fx}>
+    <Press
       accessibilityRole="button"
       accessibilityLabel={`${LETTERS[i]}) ${text}`}
+      accessibilityState={{ selected: state === "picked", disabled: disabled || !onPress }}
       disabled={disabled || !onPress}
       onPress={onPress}
-      style={({ pressed }) => ({ flexDirection: "row", gap: 10, alignItems: "flex-start", borderWidth: 1.5, borderColor: border, backgroundColor: bg, borderRadius: 10, padding: 10, opacity: state === "tried" ? 0.45 : pressed ? 0.85 : 1 })}
+      scaleTo={0.985}
+      inner={{ flexDirection: "row", gap: 10, alignItems: "flex-start", borderWidth: 1.5, borderColor: border, backgroundColor: bg, borderRadius: 10, padding: 10, opacity: state === "tried" ? 0.45 : 1 }}
     >
       <View style={{ width: 26, height: 26, borderRadius: 13, borderWidth: 1.5, borderColor: bubble ? border : c.guide, backgroundColor: state === "picked" ? c.ink : state === "right" ? c.ok : state === "wrong" ? c.bad : "transparent", alignItems: "center", justifyContent: "center" }}>
         <Text style={{ fontSize: 12, fontWeight: "700", color: bubble ? "#fff" : c.guide }}>{LETTERS[i]}</Text>
@@ -36,7 +41,8 @@ export function Opt({ i, text, state, onPress, disabled, sub }: { i: number; tex
         <T>{text}</T>
         {sub ? <T v="small" muted>{sub}</T> : null}
       </View>
-    </Pressable>
+    </Press>
+    </Animated.View>
   );
 }
 
@@ -59,7 +65,10 @@ export function QuestionCard({ q, st, meta, src, onNext }: { q: Question; st: Ca
   const fam = FAMILIES[q.fam];
 
   const pick = (j: number) => {
-    if (cardPick(q, st, j, src)) redraw();
+    if (!cardPick(q, st, j, src)) return;
+    if (j === q.a) haptic.ok();
+    else haptic.bad();
+    redraw();
   };
   const toOpts = () => {
     st.stage = "opts";
@@ -71,7 +80,7 @@ export function QuestionCard({ q, st, meta, src, onNext }: { q: Question; st: Ca
   const fc = st.famChange;
 
   return (
-    <View style={{ backgroundColor: c.paper, borderColor: c.line, borderWidth: 1, borderRadius: 14, padding: 14, gap: 12 }}>
+    <FadeIn y={14} style={{ backgroundColor: c.paper, borderColor: c.line, borderWidth: 1, borderRadius: 14, padding: 14, gap: 12 }}>
       <Row>
         <T v="mono" color={c.guide}>{meta.title}</T>
         <Chip text={SECTIONS[q.sec] || ""} />
@@ -114,14 +123,14 @@ export function QuestionCard({ q, st, meta, src, onNext }: { q: Question; st: Ca
       )}
 
       {retry ? (
-        <View style={{ backgroundColor: c.markSoft, borderRadius: 10, padding: 12, gap: 4 }}>
+        <FadeIn style={{ backgroundColor: c.markSoft, borderRadius: 10, padding: 12, gap: 4 }}>
           <T v="small"><Text style={{ fontWeight: "700" }}>💡 İpucu: </Text>{q.hint || fam.tool}</T>
           <T v="small" muted>Bir kez daha dene. Resmî skor ilk denemen.</T>
-        </View>
+        </FadeIn>
       ) : null}
 
       {done ? (
-        <View style={{ backgroundColor: c.bg, borderRadius: 10, padding: 12, gap: 8 }}>
+        <FadeIn delay={120} style={{ backgroundColor: c.bg, borderRadius: 10, padding: 12, gap: 8 }}>
           <T style={{ fontWeight: "700" }} color={ok1 ? c.ok : ok2 ? c.warn : c.bad}>
             {ok1 ? (st.un ? "Doğru (emin değildin, yarım sayıldı)." : "İlk denemede doğru.") : ok2 ? "İkinci denemede doğru. Puana sayılmaz, “sonunda” olarak not edildi." : `Doğrusu ${LETTERS[q.a]}.`}
           </T>
@@ -153,11 +162,11 @@ export function QuestionCard({ q, st, meta, src, onNext }: { q: Question; st: Ca
           ) : fc && fc.before !== fc.after ? (
             <T v="small" color={c.guide}>Aile durumu: {lightLabel(fc.before)} → {lightLabel(fc.after)}</T>
           ) : null}
-        </View>
+        </FadeIn>
       ) : null}
 
       {done && (!ok1 || st.un) ? (
-        <View style={{ gap: 8 }}>
+        <FadeIn delay={220} style={{ gap: 8 }}>
           <T v="small" style={{ fontWeight: "700" }}>Neden bunu seçtin?</T>
           <Row gap={6}>
             {DIAG.map((d) => (
@@ -171,7 +180,7 @@ export function QuestionCard({ q, st, meta, src, onNext }: { q: Question; st: Ca
             ))}
           </Row>
           <Input placeholder="Kendi cümlenle (isteğe bağlı)" defaultValue={st.diagTxt} onChangeText={(t) => (st.diagTxt = t)} onEndEditing={() => saveDiag(st)} />
-        </View>
+        </FadeIn>
       ) : null}
 
       <Row>
@@ -179,6 +188,6 @@ export function QuestionCard({ q, st, meta, src, onNext }: { q: Question; st: Ca
         <Spacer />
         {done ? <Btn kind="pri" title={meta.last ? "Bitir ›" : "Sonraki ›"} onPress={() => { saveDiag(st); onNext(); }} /> : null}
       </Row>
-    </View>
+    </FadeIn>
   );
 }

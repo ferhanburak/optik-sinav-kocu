@@ -8,6 +8,7 @@ import { nav } from "../lib/nav";
 import { S, save } from "../lib/store";
 import { Opt, Passage } from "../ui/QuestionCard";
 import { Bar, Btn, Card, Chip, Inl, Notice, Row, Spacer, T, Table, toast } from "../ui/kit";
+import { FadeIn, ease, haptic, useCountUp } from "../ui/motion";
 import { levelColor, useColors } from "../ui/theme";
 import { Shell, useMutable, useTick } from "./Shell";
 
@@ -146,6 +147,7 @@ export function MockPlayer({ mode }: { mode: MockMode }) {
           {q.o.map((o, j) => (
             <Opt key={j} i={j} text={o} state={P.ans[P.cur] === j ? "picked" : ""} onPress={() => {
               P.ans[P.cur] = P.ans[P.cur] === j ? null : j;
+              haptic.tap();
               const qn = P.cur + 1;
               if ([16, 26, 40].includes(qn) && P.ans[P.cur] !== null && !P.cp[qn]) P.cp[qn] = Math.round((Date.now() - P.t0) / 1000);
               P.confirm = false;

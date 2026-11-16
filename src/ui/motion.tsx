@@ -58,7 +58,7 @@ export function useAnswerFx(state: string | undefined) {
     prev.current = state;
     if (reduce || was === state) return;
     if (state === "right") Animated.sequence([Animated.timing(scale, { toValue: 1.035, duration: 110, useNativeDriver: ND }), Animated.spring(scale, { toValue: 1, useNativeDriver: ND, speed: 18, bounciness: 10 })]).start();
-    if (state === "wrong" || state === "tried")
+    if ((state === "wrong" && was !== "tried") || state === "tried")
       Animated.sequence([-7, 7, -5, 5, -2, 0].map((v) => Animated.timing(x, { toValue: v, duration: 45, useNativeDriver: ND }))).start();
   }, [state]);
   return { transform: [{ translateX: x }, { scale }] };

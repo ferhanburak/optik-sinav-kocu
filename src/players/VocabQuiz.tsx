@@ -7,6 +7,7 @@ import { S } from "../lib/store";
 import type { VocabItem } from "../types";
 import { Opt } from "../ui/QuestionCard";
 import { Btn, Card, Notice, Row, Spacer, T } from "../ui/kit";
+import { FadeIn, haptic } from "../ui/motion";
 import { useColors } from "../ui/theme";
 
 export function VocabQuiz({ list, title, onDone, doneLabel }: { list: VocabItem[]; title: string; onDone: () => void; doneLabel: string }) {
@@ -35,9 +36,12 @@ export function VocabQuiz({ list, title, onDone, doneLabel }: { list: VocabItem[
     r[i] = ok;
     setRes(r);
     vocabAnswer(v.id, ok);
+    if (ok) haptic.ok();
+    else haptic.bad();
   };
   const mcq = opts.length >= 3;
   return (
+    <FadeIn key={v.id} y={14}>
     <Card>
       <Row><T v="mono" color={c.guide}>{title}</T><Spacer /><T v="small" muted>{i + 1} / {list.length}</T></Row>
       <T v="h1">{v.prep ? "🔹 " : ""}{v.w}</T>
@@ -60,5 +64,6 @@ export function VocabQuiz({ list, title, onDone, doneLabel }: { list: VocabItem[
         </>
       ) : null}
     </Card>
+    </FadeIn>
   );
 }

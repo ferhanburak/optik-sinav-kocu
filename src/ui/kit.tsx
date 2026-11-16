@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from "react-native";
 import { lightLabel } from "../lib/engine";
+import { FadeIn, Press, useFill } from "./motion";
 import { lightColor, useColors, type Colors } from "./theme";
 
 type TV = "h1" | "h2" | "h3" | "body" | "small" | "label" | "mono" | "big";
@@ -40,18 +41,17 @@ export function Btn({ title, onPress, kind = "def", sm, disabled, on, style }: {
   const bg = kind === "pri" ? c.guide : on ? c.ink : kind === "ghost" ? "transparent" : c.paper;
   const fg = kind === "pri" ? "#fff" : on ? c.paper : c.ink;
   return (
-    <Pressable
+    <Press
       accessibilityRole="button"
       accessibilityState={{ disabled, selected: on }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [
-        { backgroundColor: bg, borderColor: kind === "pri" ? c.guide : kind === "ghost" ? "transparent" : c.line, borderWidth: 1, borderRadius: 10, paddingVertical: sm ? 6 : 10, paddingHorizontal: sm ? 10 : 14, opacity: disabled ? 0.45 : pressed ? 0.8 : 1, alignItems: "center" },
-        style,
-      ]}
+      hitSlop={sm ? 6 : 2}
+      style={style}
+      inner={{ backgroundColor: bg, borderColor: kind === "pri" ? c.guide : kind === "ghost" ? "transparent" : c.line, borderWidth: 1, borderRadius: 10, paddingVertical: sm ? 6 : 10, paddingHorizontal: sm ? 10 : 14, opacity: disabled ? 0.45 : 1, alignItems: "center" }}
     >
       <Text style={{ color: fg, fontWeight: "600", fontSize: sm ? 13 : 15 }}>{title}</Text>
-    </Pressable>
+    </Press>
   );
 }
 
