@@ -39,6 +39,7 @@ function Main() {
         <FadeIn key="sinav" y={8} duration={200} style={{ flex: 1 }}>
           <ExamSelect />
         </FadeIn>
+        <Modals />
         <Toasts />
       </SafeAreaView>
     );
@@ -49,8 +50,8 @@ function Main() {
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 6 }}>
         <Brand />
         <View style={{ flex: 1 }} />
-        <Btn sm title={`‹ ${examName(n.exam)}`} onPress={() => nav.exam(null)} />
-        <Btn sm title="Ayarlar" onPress={() => nav.modal({ kind: "settings" })} />
+        <Btn sm title="‹ Sınavlarım" onPress={() => nav.exam(null)} />
+        <Btn sm title={`${examName(n.exam)} ayarları`} onPress={() => nav.modal({ kind: "settings" })} />
       </View>
       <View style={{ flex: 1 }}>
         <FadeIn key={n.tab} y={8} duration={200} style={{ flex: 1 }}>
@@ -74,7 +75,9 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const scheme = useColorScheme();
   useEffect(() => {
-    Promise.all([load(), loadNav()]).then(() => {
+    load()
+      .then(() => loadNav(S.onboarded || S.sessions.length > 0 || S.attempts.length > 0))
+      .then(() => {
       setReady(true);
       if (S.profile.remind) syncReminders(false); // izin daha önce verildiyse saatleri tazeler; ilk açılışta izin sormaz
     });
