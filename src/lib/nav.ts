@@ -1,7 +1,8 @@
-// Gezinme: seçili sınav, sekme, tam ekran oynatıcı (oturum, drill, seviye testi, deneme, kelime tekrarı) ve pencereler
+// Gezinme ve uygulama düzeyi kayıt: profil adı, eklenen sınavlar, açık sınav, sekme, tam ekran oynatıcı ve pencereler
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSyncExternalStore } from "react";
 import type { MockMode } from "../data/catalog";
+import { EXAMS } from "../data/exams";
 
 export type Tab = "bugun" | "plan" | "defter" | "kelimeler" | "deneme" | "ilerleme";
 export type Player =
@@ -10,30 +11,46 @@ export type Player =
   | { kind: "place" }
   | { kind: "mock"; mode: MockMode }
   | { kind: "vrev" };
-export type Modal = { kind: "settings" } | { kind: "intro"; sk: "normal" | "short" | "A" | "B" } | null;
+export type Modal = { kind: "settings" } | { kind: "profile" } | { kind: "intro"; sk: "normal" | "short" | "A" | "B" } | null;
 
 interface NavState {
-  /** Seçili sınav; null ise sınav seçim ekranı gösterilir */
+  /** Açık sınav; null ise "Sınavlarım" ekranı gösterilir */
   exam: string | null;
+  /** Kullanıcının eklediği sınavlar */
+  exams: string[];
+  /** Profil adı (isteğe bağlı) */
+  name: string;
   tab: Tab;
   player: Player | null;
   modal: Modal;
   defterTab?: string;
 }
 
-const EXAM_KEY = "optik-exam";
-let N: NavState = { exam: null, tab: "bugun", player: null, modal: null };
+const APP_KEY = "optik-app";
+const OLD_EXAM_KEY = "optik-exam";
+let N: NavState = { exam: null, exams: [], name: "", tab: "bugun", player: null, modal: null };
 const subs = new Set<() => void>();
 const set = (p: Partial<NavState>) => {
   N = { ...N, ...p };
   subs.forEach((f) => f());
 };
+const persist = () => AsyncStorage.setItem(APP_KEY, JSON.stringify({ exam: N.exam, exams: N.exams, name: N.name })).catch(() => {});
+const isReady = (id: unknown): id is string => typeof id === "string" && EXAMS.some((e) => e.id === id && e.ready);
 
 export const nav = {
-  /** Sınav seç (kaydedilir, sonraki açılışta doğrudan o sınavın menüsü gelir); null → seçim ekranına dön */
+  /** Sınavı aç (listede yoksa ekler); null → "Sınavlarım" ekranına dön */
   exam: (exam: string | null) => {
-    set({ exam, tab: "bugun", modal: null });
-    (exam ? AsyncStorage.setItem(EXAM_KEY, exam) : AsyncStorage.removeItem(EXAM_KEY)).catch(() => {});
+    set({ exam, exams: exam && !N.exams.includes(exam) ? [...N.exams, exam] : N.exams, tab: "bugun", modal: null });
+    persist();
+  },
+  /** Sınavı listeden kaldırır; çalışma verileri silinmez */
+  removeExam: (id: string) => {
+    set({ exams: N.exams.filter((x) => x !== id), exam: N.exam === id ? null : N.exam });
+    persist();
+  },
+  setName: (name: string) => {
+    set({ name: name.trim().slice(0, 40) });
+    persist();
   },
   tab: (tab: Tab, defterTab?: string) => set({ tab, defterTab }),
   open: (player: Player) => set({ player, modal: null }),
@@ -41,11 +58,20 @@ export const nav = {
   modal: (modal: Modal) => set({ modal }),
 };
 
-/** Açılışta son seçilen sınavı yükler */
-export async function loadNav() {
+/**
+ * Açılışta kaydı yükler. Tek sınavı olan doğrudan o sınavın menüsüne, birden fazla sınavı olan "Sınavlarım" ekranına açılır.
+ * hasYdsData: bu telefonda YDS çalışması varsa YDS listeye eklenir (eski sürümden gelenler için).
+ */
+export async function loadNav(hasYdsData: boolean) {
   try {
-    const exam = await AsyncStorage.getItem(EXAM_KEY);
-    if (exam) set({ exam });
+    const raw = await AsyncStorage.getItem(APP_KEY);
+    const saved = raw ? JSON.parse(raw) : null;
+    const old = saved ? null : await AsyncStorage.getItem(OLD_EXAM_KEY);
+    let exams: string[] = Array.isArray(saved?.exams) ? saved.exams.filter(isReady) : [];
+    if (isReady(old) && !exams.includes(old)) exams.push(old);
+    if (hasYdsData && !exams.includes("yds")) exams = ["yds", ...exams];
+    const last = isReady(saved?.exam) ? saved.exam : isReady(old) ? old : null;
+    set({ exams, name: typeof saved?.name === "string" ? saved.name : "", exam: exams.length === 1 && last && exams.includes(last) ? last : null });
   } catch {}
 }
 
