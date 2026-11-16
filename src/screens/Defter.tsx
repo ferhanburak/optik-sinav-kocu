@@ -6,13 +6,14 @@ import { CURRICULUM, FAMILIES, TRICKS, WEEK_NAMES } from "../data/catalog";
 import { dayOf, DOW, fmtDate, fmtShort } from "../lib/dates";
 import { fam, mistakeRef, topicStatus } from "../lib/engine";
 import { LIGHT_ORDER } from "../data/catalog";
+import { POCKET } from "../data/pocket";
 import { defterSpan, retestQuestions, shareDefter, studiedTopics } from "../lib/defter";
 import { nav, useNav } from "../lib/nav";
 import { useStore } from "../lib/store";
 import type { Mistake } from "../types";
 import { LessonView } from "../ui/LessonView";
 import { Opt, Passage } from "../ui/QuestionCard";
-import { Box, Btn, Card, Chip, Empty, Inl, LightBadge, Row, Seg, T, Table, st, toast } from "../ui/kit";
+import { Box, Btn, Card, Chip, Empty, Inl, LightBadge, List, Row, Seg, T, Table, st, toast } from "../ui/kit";
 import { useColors } from "../ui/theme";
 import { DecisionView } from "./Today";
 
@@ -117,7 +118,16 @@ export function Defter() {
   } else if (tab === "trick") {
     body = (
       <>
+        <T v="h3">Cep kartı</T>
+        {POCKET.map((b) => (
+          <Box key={b.t} kind={b.warn ? "tuzak" : "kural"} title={`${b.warn ? "⚠️" : "📌"} ${b.t}`}>
+            {b.items ? <List v="small" ordered={!b.warn} items={b.items} /> : null}
+            {b.table ? <Table firstBold cols={b.table.cols} rows={b.table.rows} /> : null}
+            {b.foot ? <Inl v="small" text={b.foot} /> : null}
+          </Box>
+        ))}
         <Card>
+          <T v="h3">Kısa kurallar</T>
           <T v="small" muted>Kısa ve hatırlanabilir kurallar. Her biri tekrar eden bir hata türüne karşı.</T>
           <Table firstBold rows={TRICKS.map(([a, b]) => [a, b])} />
         </Card>

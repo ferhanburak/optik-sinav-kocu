@@ -107,7 +107,7 @@ E.jumpTopic("t10"); ok(E.activeTopic()?.id === "t10" && E.topicStatus("t2") === 
 // Defter ve normalize
 S.sessions.push({ id: "x", date: today(), kind: "oturum", topic: "t7", n: 16, c: 10, cf: 12, p: 63, pf: 75, spq: 60, dur: 30 });
 const html = defterHTML();
-ok(["Zaman uyumu", "Nerede duruyorsun?", "Alan alan gelişim", "Hata analizi", "Hata tekrar testi", "Cevap anahtarı", "İçindekiler"].every((x) => html.includes(x)), "defter bölümleri");
+ok(["Zaman uyumu", "Nerede duruyorsun?", "Alan alan gelişim", "Hata analizi", "Hata tekrar testi", "Cevap anahtarı", "İçindekiler", "Bağlaç ↔ edat", "10 saniyelik kontrol"].every((x) => html.includes(x)), "defter bölümleri");
 const rt = retestQuestions();
 ok(rt.length > 0 && rt.every((r) => r.q.fam === r.from.fam && !S.mistakes.some((m) => m.q === r.q.q)), `tekrar testi: aynı aileden yeni sorular (${rt.length})`);
 ok(new Set(rt.map((r) => r.q.bid)).size === rt.length, "tekrar testinde aynı soru iki kez yok");

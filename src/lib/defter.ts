@@ -3,7 +3,8 @@
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { LESSONS } from "../content";
-import { AREAS, CURRICULUM, FAMILIES, LETTERS, TRICKS } from "../data/catalog";
+import { AREAS, CURRICULUM, FAMILIES, LETTERS } from "../data/catalog";
+import { POCKET } from "../data/pocket";
 import type { Lesson, Mistake, Question, SessionRec } from "../types";
 import { addDays, dayOf, diffDays, fmtDate, fmtShort, pct, today } from "./dates";
 import { fam, famEntries, lightLabel, mistakeRef, pickBank, prepBank } from "./engine";
@@ -57,6 +58,7 @@ table{border-collapse:collapse;width:100%;margin:8px 0}td,th{border-bottom:1px s
 .you{color:#c0452f}.right{color:#2e8b57;font-weight:700}.tag{background:#c0452f;color:#fff;border-radius:8px;font-size:10px;padding:1px 6px;font-weight:700}
 .hq{border-bottom:1px solid #e6e2d9;padding:8px 0;page-break-inside:avoid}.hno{background:#1f2536;color:#fff;border-radius:5px;padding:1px 6px;font-weight:700;font-size:11px}.src{background:#f3efe6;border-radius:8px;font-size:10px;padding:2px 6px;color:#5E6678}
 .keys{display:flex;flex-wrap:wrap;gap:4px}.keys span{background:#f8f5ee;border-radius:5px;padding:2px 8px;width:19%}.keys b{color:#2f6690}
+.pocket{columns:2;column-gap:12px;font-size:11.5px}.pocket .box{break-inside:avoid;margin:0 0 10px}.pocket td,.pocket th{padding:3px 5px;font-size:11px}code{background:#f3efe6;border-radius:3px;padding:0 3px}
 .pass{background:#f8f5ee;border-left:3px solid #d9c9a8;padding:6px 10px;font-size:12px;margin:4px 0}
 `;
 
@@ -186,6 +188,10 @@ function mistakesSection(): string {
   );
 }
 
+function pocketSection(): string {
+  return `<div class="pocket">${POCKET.map((b) => `<div class="box ${b.warn ? "warn" : "info"}"><h5>${b.warn ? "⚠️" : "📌"} ${e(b.t)}</h5>${b.items ? list(b.items.map((t) => inl(e(t))), !b.warn) : ""}${b.table ? `<table><tr>${b.table.cols.map((c) => `<th>${e(c)}</th>`).join("")}</tr>${b.table.rows.map((r) => `<tr>${r.map((c, i) => `<td>${i ? e(c) : "<b>" + e(c) + "</b>"}</td>`).join("")}</tr>`).join("")}</table>` : ""}${b.foot ? `<p>${inl(e(b.foot))}</p>` : ""}</div>`).join("")}</div>`;
+}
+
 export function defterHTML(): string {
   const { first, weeks } = defterSpan();
   const p = S.profile;
@@ -211,7 +217,7 @@ export function defterHTML(): string {
       d: days.length ? `${fmtShort(days[0])} – ${fmtShort(days[days.length - 1])}, güne göre` : "henüz kelime yok",
       h: days.map((d) => `<h3>${fmtDate(d)}${S.sessions.find((s) => s.date === d && s.topic) ? " · " + e(topicOf(S.sessions.find((s) => s.date === d && s.topic)!.topic)?.t) : ""}</h3><table><tr><th>Kelime / kalıp</th><th>Anlam</th><th>Örnek</th></tr>${S.vocab.filter((v) => v.day === d).map((v) => `<tr><td><b>${v.prep ? "◆ " : ""}${e(v.w)}</b></td><td>${e(v.m)}</td><td><i>${e(v.ex)}</i></td></tr>`).join("")}</table>`).join("") || "<p>Henüz kelime yok.</p>",
     },
-    { t: "Cep kartı", d: "tek bakışta bütün kurallar", h: `<table>${TRICKS.map(([a, b]) => `<tr><td><b>${e(a)}</b></td><td>${e(b)}</td></tr>`).join("")}</table>` },
+    { t: "Cep kartı", d: "tek bakışta bütün kurallar", h: pocketSection() },
     {
       t: "Cevap anahtarı",
       d: "kısa açıklamalarla",
