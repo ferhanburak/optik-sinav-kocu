@@ -39,7 +39,7 @@ export function Progress() {
       <Card>
         <Row><T v="h3">Hata aileleri</T><Spacer /><T v="small" muted>🟢 = üst üste 2 doğru</T></Row>
         {fams.length ? (
-          <Table cols={["Aile", "Durum", "Yanlış", "Seri", "Yoklama"]} rows={fams.map(([k, f]) => [FAMILIES[k].n, <LightBadge key={k} l={f.light} />, String(f.wrong), String(f.streak), f.due ? fmtShort(f.due) : "—"])} />
+          <Table cols={["Aile", "Durum", "Yanlış", "Seri", "Tekrar"]} rows={fams.map(([k, f]) => [FAMILIES[k].n, <LightBadge key={k} l={f.light} />, String(f.wrong), String(f.streak), f.due ? fmtShort(f.due) : "—"])} />
         ) : (
           <Empty text="Henüz veri yok." />
         )}
