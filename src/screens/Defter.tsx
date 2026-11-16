@@ -4,7 +4,7 @@ import { Pressable, ScrollView, View } from "react-native";
 import { LESSONS } from "../content";
 import { CURRICULUM, FAMILIES, TRICKS, WEEK_NAMES } from "../data/catalog";
 import { addDays, dayOf, DOW, fmtDate, fmtShort, today } from "../lib/dates";
-import { fam, topicStatus } from "../lib/engine";
+import { fam, mistakeRef, topicStatus } from "../lib/engine";
 import { LIGHT_ORDER } from "../data/catalog";
 import { shareDefter, weekTopics } from "../lib/defter";
 import { nav, useNav } from "../lib/nav";
@@ -25,7 +25,7 @@ function MistakeRow({ m }: { m: Mistake }) {
     <View style={{ borderTopWidth: 1, borderColor: c.line, paddingTop: 8, gap: 8 }}>
       <Pressable onPress={() => setOpen(!open)} style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
         <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: m.un ? c.warn : c.bad }} />
-        <T v="mono" muted style={{ width: 50 }}>{fmtShort(dayOf(m.t))}</T>
+        <T v="mono" muted style={{ width: 78 }}>{mistakeRef(m)}</T>
         <T v="small" numberOfLines={open ? undefined : 1} style={{ flex: 1 }}>{m.q}</T>
         {m.un ? <Chip text="★" color={c.warn} /> : null}
       </Pressable>

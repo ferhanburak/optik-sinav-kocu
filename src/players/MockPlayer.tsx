@@ -58,7 +58,7 @@ export function MockPlayer({ mode }: { mode: MockMode }) {
       if (P.uns[i]) { un++; if (ok) unOk++; } else if (!ok) sureWrong.push(i);
       recordAttempt(q, ok, ok, P.uns[i], 0, "deneme", "");
       famUpdate(q.fam, ok, P.uns[i]);
-      if (!ok || P.uns[i]) S.mistakes.push({ id: uid(), t: Date.now(), fam: q.fam, sec: q.sec, p: q.p || "", q: q.q, o: q.o, a: q.a, ua: a, x: q.x, tip: q.tip, lab: q.lab, un: ok && P.uns[i] ? 1 : 0, diag: "" });
+      if (!ok || P.uns[i]) S.mistakes.push({ id: uid(), t: Date.now(), fam: q.fam, sec: q.sec, p: q.p || "", q: q.q, o: q.o, a: q.a, ua: a, x: q.x, tip: q.tip, lab: q.lab, un: ok && P.uns[i] ? 1 : 0, diag: "", ref: `M${i + 1}` });
     });
     const dur = Math.round((Date.now() - P.t0) / 1000);
     const n = qs.length;

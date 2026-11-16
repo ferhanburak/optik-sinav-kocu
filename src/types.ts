@@ -116,6 +116,8 @@ export interface Mistake {
   lab: string;
   un: 0 | 1;
   diag: string;
+  /** Kısa kod: I3 = ısınma 3, S5 = set 5, D2 = drill 2, T7 = seviye testi 7, M41 = deneme 41 */
+  ref?: string;
 }
 
 export interface VocabItem {
@@ -212,4 +214,5 @@ export interface CardState {
   diagTxt: string;
   famChange: { before: Light; after: Light } | null;
   mid?: string;
+  ref?: string;
 }

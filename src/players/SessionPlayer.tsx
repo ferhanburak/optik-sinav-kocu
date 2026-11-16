@@ -122,7 +122,7 @@ export function SessionPlayer({ sk }: { sk: P["sk"] }) {
         </>
       );
     const ck = key + i;
-    const st = (P.cards[ck] = P.cards[ck] || newCardState());
+    const st = (P.cards[ck] = P.cards[ck] || newCardState(`${key === "warm" ? "I" : "S"}${i + 1}`));
     const fast = key === "test" && qs.length >= 10 && i >= qs.length - 4;
     return (
       <QuestionCard

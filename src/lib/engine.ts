@@ -238,8 +238,8 @@ export function buildMock(mode: MockMode): { qs: Question[]; skipped: string[] }
 }
 
 /* ---------- Soru kartı ---------- */
-export function newCardState(): CardState {
-  return { stage: "label", label: "", first: null, second: null, t0: Date.now(), sec: 0, un: false, diag: [], diagTxt: "", famChange: null };
+export function newCardState(ref = ""): CardState {
+  return { ref, stage: "label", label: "", first: null, second: null, t0: Date.now(), sec: 0, un: false, diag: [], diagTxt: "", famChange: null };
 }
 
 export function labelType(q: Question): string | null {
@@ -279,10 +279,13 @@ function finishCard(q: Question, st: CardState, src: string) {
   st.famChange = famUpdate(q.fam, ok, st.un);
   if (!ok || st.un) {
     st.mid = uid();
-    S.mistakes.push({ id: st.mid, t: Date.now(), fam: q.fam, sec: q.sec, p: q.p || "", q: q.q, o: q.o, a: q.a, ua: st.first, x: q.x, tip: q.tip, lab: q.lab, un: ok && st.un ? 1 : 0, diag: "" });
+    S.mistakes.push({ id: st.mid, t: Date.now(), fam: q.fam, sec: q.sec, p: q.p || "", q: q.q, o: q.o, a: q.a, ua: st.first, x: q.x, tip: q.tip, lab: q.lab, un: ok && st.un ? 1 : 0, diag: "", ref: st.ref || "" });
   }
   save();
 }
+
+/** Hata kaydının kısa adı: "21 Eki S5" */
+export const mistakeRef = (m: Mistake) => `${fmtShort(dayOf(m.t))}${m.ref ? " " + m.ref : ""}`;
 
 export function saveDiag(st: CardState) {
   if (!st.mid) return;

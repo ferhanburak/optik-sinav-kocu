@@ -32,7 +32,7 @@ E.famUpdate("kosul", true, true); ok(S.fams.kosul.light === "yellow", "emin değ
 
 // Soru kartı: ilk yanlış → retry → ikinci deneme; resmî skor ilk deneme
 const q = E.prepBank(BANK_ALL.find((x) => x.fam === "tense")!);
-const st = E.newCardState();
+const st = E.newCardState("S5");
 const wrong = (q.a + 1) % 5;
 E.cardPick(q, st, wrong, "set"); ok(st.stage === "retry", "ilk yanlışta retry");
 ok(!E.cardPick(q, st, wrong, "set"), "aynı yanlış şık tekrar seçilemez");
@@ -40,6 +40,7 @@ E.cardPick(q, st, q.a, "set"); ok(st.stage === "done", "ikinci denemede bitiş")
 const at = S.attempts[S.attempts.length - 1];
 ok(at.ok === 0 && at.fin === 1, "resmî skor ilk deneme, sonunda doğru");
 ok(S.mistakes.some((m) => m.id === st.mid), "yanlış deftere düştü");
+ok(E.mistakeRef(S.mistakes.find((m) => m.id === st.mid)!).endsWith(" S5"), "hata kodu: tarih + S5");
 st.diag = ["Hızlı geçtim"]; st.diagTxt = "çapaya bakmadım"; E.saveDiag(st);
 ok(S.mistakes.find((m) => m.id === st.mid)!.diag === "Hızlı geçtim · çapaya bakmadım", "teşhis kaydedildi");
 

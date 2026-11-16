@@ -34,7 +34,7 @@ export function DrillPlayer({ f }: { f: string }) {
         <QuestionCard
           key={P.i}
           q={P.qs[P.i]}
-          st={(P.cards[P.i] = P.cards[P.i] || newCardState())}
+          st={(P.cards[P.i] = P.cards[P.i] || newCardState(`D${P.i + 1}`))}
           src="drill"
           meta={{ title: `Soru ${P.i + 1}`, pos: `${P.i + 1} / ${P.qs.length}`, last: P.i === P.qs.length - 1 }}
           onNext={() => { P.i++; redraw(); }}
@@ -86,7 +86,7 @@ export function PlacementPlayer() {
         <QuestionCard
           key={P.i}
           q={P.qs[P.i]}
-          st={(P.cards[P.i] = P.cards[P.i] || newCardState())}
+          st={(P.cards[P.i] = P.cards[P.i] || newCardState(`T${P.i + 1}`))}
           src="seviye"
           meta={{ title: `Soru ${P.i + 1}`, pos: `${P.i + 1} / ${n}`, last: P.i === n - 1 }}
           onNext={() => { P.i++; redraw(); }}
