@@ -1,5 +1,6 @@
 /* Optik YDS hazır konu anlatımları, bölüm 1 (Hafta 1–2). Düzen: adım kutusu → ana tablo → destek → kontrol listesi → çözümlü örnekler → örnek soru → hatırlanacaklar */
-const LESSONS1={
+import type { Lesson } from "../types";
+export const LESSONS1: Record<string, Lesson> = {
 t1:{mantik:"Her bağlaç sorusunda aynı sıra:\n- **1. YAPI:** boşluktan virgüle kadar çekimli fiil var mı? (E/H)\n- **2. ANLAM:** iki yarıya +/− koy. Şaşırtıyor mu? → zıtlık.\n- **3. ZAMAN:** tense uyuyor mu?",
  terimler:[{terim:"E/H etiketi",tanim:"Boşluktan virgüle kadar ana (çekimli) fiil var mı sorusunun cevabı. E = evet → bağlaç, H = hayır → edat.",ornek:"___ the rain, we went out. → 'the rain' fiil yok → H → Despite"}],
  kontrol:["Şıklara bakmadan E/H yaz.","H yazdıysan bağlaç şıklarını ele.","+/− yönünü belirle.","Geçiş zarfıysa noktalamaya bak: '; ___ ,'"],

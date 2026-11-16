@@ -1,5 +1,6 @@
 /* Optik YDS soru bankası, bölüm 1: yapı aileleri. Alanlar: f=aile, s=bölüm, q, o (5 şık), a (doğru, 0-4), l=beklenen etiket, h=ipucu, x=açıklama, d=şık başına neden yanlış, t=püf */
-const BANK1=[
+import type { RawQ } from "../types";
+export const BANK1: RawQ[] = [
 /* ---------- eh: bağlaç / edat yapısı ---------- */
 {f:"eh",s:"gramer",q:"---- the heavy rain that had been forecast for days, the outdoor concert went ahead as planned.",o:["Although","Despite","Because","Since","Unless"],a:1,l:"H",h:"Parantez testi: 'that had been forecast for days' kısmını çıkar. Virgüle kadar ana fiil kalıyor mu?",x:"Parantez: (that had been forecast for days) çıkınca geriye 'the heavy rain' kalır; ana fiil yok → H → edat. Yağmur (−) ama konser yapıldı (+) → zıtlık: Despite.",d:["Bağlaç; arkasında tam cümle ister.","","Bağlaç; üstelik anlam sebep.","Bağlaç; anlam sebep.","Bağlaç; anlam koşul."],t:"that'i görünce durma, virgüle kadar oku."},
 {f:"eh",s:"gramer",q:"---- the new safety measures were introduced, the number of workplace accidents has fallen sharply.",o:["Because of","Since","Despite","Due to","In spite of"],a:1,l:"E",h:"Virgüle kadar çekimli bir fiil var mı? Ana cümlenin zamanına da bak.",x:"Virgüle kadar çekimli fiil var (were introduced) → E → bağlaç. Ana cümle 'has fallen': önlemler alındığından beri kazalar azaldı → Since.",d:["Edat; arkasında isim öbeği ister.","","Edat; anlam da zıtlık.","Edat.","Edat; anlam zıtlık."],t:"E çıktıysa edat şıklarını (because of, due to, despite) baştan ele."},

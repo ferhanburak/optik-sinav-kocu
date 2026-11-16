@@ -1,5 +1,6 @@
 /* Optik YDS soru bankası, bölüm 2: kelime, türetme, çeviri, okuma, cloze, paragraf tipleri. g = parça grubu (aynı g'deki sorular aynı parçayı paylaşır; p ilk soruda). */
-const BANK2=[
+import type { RawQ } from "../types";
+export const BANK2: RawQ[] = [
 /* ---------- kelime türetme ---------- */
 {f:"turetme",s:"kelime",q:"The committee's ---- of the proposal surprised many observers.",o:["approve","approval","approving","approved","approvingly"],a:1,l:"İ",h:"Yer → tür: 's ___ of ne ister?",x:"'s ___ of → isim: approval.",d:["Fiil.","","V-ing; burada isim gerekir.","Sıfat / V3.","Zarf."],t:"the / 's + ___ + of → isim."},
 {f:"turetme",s:"kelime",q:"The results proved highly ---- in predicting patients' response to treatment.",o:["rely","reliable","reliably","reliance","relied"],a:1,l:"S",h:"prove + highly + ___",x:"prove + highly + ___ → sıfat: reliable.",d:["Fiil.","","Zarf; zarf zarfı değil sıfatı niteler.","İsim.","V3."],t:"prove / remain / become / seem + ___ → sıfat."},

@@ -1,4 +1,5 @@
 /* Optik YDS: ikinci partlar (t14, t17–t20) — her konuda en az 4 çözümlü örnek kuralı için */
+import { LESSONS2 } from "./lessons2";
 LESSONS2.t14.parts.push({baslik:"Nesne ve edat kontrolü",anlatim:"Phrasal verb'ün nesne alıp almadığına ve arkasından hangi edatın geldiğine bak. Üç parçalı olanlar (put up with, cut down on, come up with, look forward to) son edatıyla birlikte ezberlenir.",
  sence:{soru:"'We must come up a solution.' neden yanlış?",cevap:"come up with üç parçalıdır; 'with' olmadan nesne alamaz: come up with a solution."},
  tablo:{cols:["Üç parçalı","Anlam"],rows:[["come up with","(fikir, çözüm) bulmak"],["put up with","katlanmak"],["cut down on","azaltmak"],["keep up with","ayak uydurmak"],["run out of","tükenmek"],["look forward to (+ V-ing)","dört gözle beklemek"]]},

@@ -1,5 +1,6 @@
 /* Optik YDS hazır konu anlatımları, bölüm 2 (Hafta 2 sonu – Hafta 4) */
-const LESSONS2={
+import type { Lesson } from "../types";
+export const LESSONS2: Record<string, Lesson> = {
 t12:{mantik:"Modal sorularında iki soru sor:\n- **1. Zaman:** şimdi / gelecek mi (modal + V1), geçmiş mi (modal + have V3)?\n- **2. İşlev:** çıkarım mı, zorunluluk mu, eleştiri mi, gereksizlik mi?",
  kontrol:["Cümlede geçmişe dair kanıt var mı? → have V3.","Kanıt güçlü olumlu → must have · güçlü olumsuz → can't have.","Yapılmamış ama gerekliydi → should have.","Yapılmış ama gereksizdi → needn't have."],
  parts:[{baslik:"Geçmiş modalları",anlatim:"Geçmişe dair modallar her zaman **modal + have + V3** biçimindedir. Fark işlevdedir.",
