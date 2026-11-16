@@ -3,7 +3,7 @@ import { BANK_ALL, LESSONS } from "../src/content";
 import { CURRICULUM, FAMILIES, PLACEMENT, SECTIONS } from "../src/data/catalog";
 import { VOCAB_BANK } from "../src/data/vocab";
 import * as E from "../src/lib/engine";
-import { defterHTML } from "../src/lib/defter";
+import { defterHTML, retestQuestions } from "../src/lib/defter";
 import { S, normalize, defaultState } from "../src/lib/store";
 import { addDays, today, uid } from "../src/lib/dates";
 
@@ -107,7 +107,11 @@ E.jumpTopic("t10"); ok(E.activeTopic()?.id === "t10" && E.topicStatus("t2") === 
 // Defter ve normalize
 S.sessions.push({ id: "x", date: today(), kind: "oturum", topic: "t7", n: 16, c: 10, cf: 12, p: 63, pf: 75, spq: 60, dur: 30 });
 const html = defterHTML();
-ok(html.includes("Zaman uyumu") && html.includes("Cevap anahtarı"), "haftalık defter HTML");
+ok(["Zaman uyumu", "Nerede duruyorsun?", "Alan alan gelişim", "Hata analizi", "Hata tekrar testi", "Cevap anahtarı", "İçindekiler"].every((x) => html.includes(x)), "defter bölümleri");
+const rt = retestQuestions();
+ok(rt.length > 0 && rt.every((r) => r.q.fam === r.from.fam && !S.mistakes.some((m) => m.q === r.q.q)), `tekrar testi: aynı aileden yeni sorular (${rt.length})`);
+ok(new Set(rt.map((r) => r.q.bid)).size === rt.length, "tekrar testinde aynı soru iki kez yok");
+if (process.env.DEFTER_OUT) require("fs").writeFileSync(process.env.DEFTER_OUT, html);
 ok(normalize(null).v === 2 && normalize({ v: 2, fams: 3 }).fams && Array.isArray(normalize({ v: 2 }).attempts), "normalize");
 ok(defaultState().topics.find((t) => t.status === "aktif")?.id === "t1", "varsayılan aktif konu t1");
 

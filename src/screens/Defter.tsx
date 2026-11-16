@@ -3,10 +3,10 @@ import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { LESSONS } from "../content";
 import { CURRICULUM, FAMILIES, TRICKS, WEEK_NAMES } from "../data/catalog";
-import { addDays, dayOf, DOW, fmtDate, fmtShort, today } from "../lib/dates";
+import { dayOf, DOW, fmtDate, fmtShort } from "../lib/dates";
 import { fam, mistakeRef, topicStatus } from "../lib/engine";
 import { LIGHT_ORDER } from "../data/catalog";
-import { shareDefter, weekTopics } from "../lib/defter";
+import { defterSpan, retestQuestions, shareDefter, studiedTopics } from "../lib/defter";
 import { nav, useNav } from "../lib/nav";
 import { useStore } from "../lib/store";
 import type { Mistake } from "../types";
@@ -139,20 +139,17 @@ export function Defter() {
       <Empty text="Her oturumdan sonra yazılan karar notları burada birikir." />
     );
   } else {
-    const ws = addDays(today(), -6);
-    const wm = s.mistakes.filter((m) => dayOf(m.t) >= ws).length;
-    const wv = s.vocab.filter((v) => v.day >= ws).length;
     body = (
       <Card>
-        <T v="h3">Haftalık çalışma defteri</T>
-        <T v="small" muted>Son 7 günün konu anlatımları, çözümlü örnekler, yanlışların, hata tekrar testi, kelimeler ve cep kartı tek bir PDF'te. Her {DOW[s.profile.defterDay]} {s.profile.defterTime}'da hatırlatılır.</T>
+        <T v="h3">Çalışma defteri</T>
+        <T v="small" muted>İlk oturumundan bugüne birikimli bir PDF: haftalara göre skorların, alan alan gelişim, çalıştığın konuların anlatımı, türüne göre hata analizi, her tuzak için yeni soruyla hata tekrar testi, kelimeler, cep kartı ve açıklamalı cevap anahtarı. Her {DOW[s.profile.defterDay]} {s.profile.defterTime}'da hatırlatılır.</T>
         <Row gap={16}>
-          {[[weekTopics().length, "konu"], [wm, "yanlış"], [wv, "kelime"]].map(([v, l]) => (
+          {[[defterSpan().weeks, "hafta"], [studiedTopics().length, "konu"], [s.mistakes.length, "hata"], [retestQuestions().length, "tekrar sorusu"], [s.vocab.length, "kelime"]].map(([v, l]) => (
             <View key={l as string}><T v="h2">{v}</T><T v="small" muted>{l}</T></View>
           ))}
         </Row>
         <Row>
-          <Btn kind="pri" disabled={busy} title={busy ? "Hazırlanıyor…" : "Haftalık defteri PDF olarak paylaş"} onPress={async () => {
+          <Btn kind="pri" disabled={busy} title={busy ? "Hazırlanıyor…" : "Defteri PDF olarak paylaş"} onPress={async () => {
             setBusy(true);
             try {
               if (!(await shareDefter())) toast("Bu cihazda paylaşım kullanılamıyor.");
