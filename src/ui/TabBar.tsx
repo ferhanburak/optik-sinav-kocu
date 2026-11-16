@@ -11,13 +11,12 @@ import { elev, useColors } from "./theme";
 export const TABS: [Tab, string][] = [
   ["bugun", "Bugün"],
   ["plan", "Plan"],
-  ["defter", "Defter"],
-  ["kelimeler", "Kelimeler"],
   ["deneme", "Deneme"],
+  ["defter", "Defter"],
   ["ilerleme", "İlerleme"],
 ];
 
-export type IconId = Tab | "hedef";
+export type IconId = Tab | "hedef" | "kelimeler" | "ayar" | "profil";
 
 export function TabIcon({ id, color, size = 22 }: { id: IconId; color: string; size?: number }) {
   const p = { stroke: color, strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, fill: "none" };
@@ -46,6 +45,17 @@ export function TabIcon({ id, color, size = 22 }: { id: IconId; color: string; s
           <Circle cx={17} cy={7} r={2.5} {...p} />
           <Circle cx={7} cy={17} r={2.5} {...p} />
           <Circle cx={17} cy={17} r={2.5} {...p} fill={color} />
+        </>
+      ) : id === "ayar" ? (
+        <>
+          <Path d="M4 7h10M18 7h2M4 17h2M10 17h10" {...p} />
+          <Circle cx={16} cy={7} r={2} {...p} />
+          <Circle cx={8} cy={17} r={2} {...p} />
+        </>
+      ) : id === "profil" ? (
+        <>
+          <Circle cx={12} cy={8} r={4} {...p} />
+          <Path d="M4 21a8 8 0 0 1 16 0" {...p} />
         </>
       ) : id === "hedef" ? (
         <>
@@ -103,7 +113,7 @@ export function TabBar({ value, onChange }: { value: Tab; onChange: (t: Tab) => 
                 inner={{ alignItems: "center", paddingVertical: 7, gap: 2 }}
               >
                 <TabIcon id={id} color={on ? c.guide : c.muted} />
-                <Text numberOfLines={1} style={{ fontSize: 10, fontWeight: on ? "700" : "500", color: on ? c.ink : c.muted }}>{l}</Text>
+                <Text numberOfLines={1} style={{ fontSize: 11, fontWeight: on ? "700" : "500", color: on ? c.ink : c.muted }}>{l}</Text>
               </Press>
             );
           })}

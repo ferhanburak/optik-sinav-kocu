@@ -4,7 +4,7 @@ import { useSyncExternalStore } from "react";
 import type { MockMode } from "../data/catalog";
 import { EXAMS } from "../data/exams";
 
-export type Tab = "bugun" | "plan" | "defter" | "kelimeler" | "deneme" | "ilerleme";
+export type Tab = "bugun" | "plan" | "deneme" | "defter" | "ilerleme";
 export type Player =
   | { kind: "session"; sk: "normal" | "short" | "A" | "B" }
   | { kind: "drill"; f: string }

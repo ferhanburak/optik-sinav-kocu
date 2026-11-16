@@ -41,7 +41,7 @@ Telefona **Expo Go** uygulamasını kur ve terminalde çıkan QR kodu okut. Tara
 | `src/data/` | Katalog (bölümler, hata türleri, müfredat, seviye testi), kelime bankası ve cep kartı |
 | `src/lib/` | Motor (`engine.ts`), kayıt (`store.ts`, AsyncStorage), tarih, gezinme, bildirimler, çalışma defteri (`defter.ts`) |
 | `src/ui/` | Ortak bileşenler, soru kartı, konu anlatımı görünümü, grafikler |
-| `src/screens/` | Bugün, Plan, Defter, Kelimeler, Deneme, İlerleme, Ayarlar |
+| `src/screens/` | Sınavlarım, Bugün, Plan, Deneme, Defter (kelimeler dahil), İlerleme, profil ve sınav ayarları |
 | `src/players/` | Günlük oturum, drill, seviye testi, deneme, kelime tekrarı |
 | `tests/` | Motor testleri |
 | `web/` | Tek sayfalık önceki web sürümü (Claude Artifact) |

@@ -1,4 +1,4 @@
-// Defter: yanlış defteri (aileye göre), konu notları (yerleşik anlatımlar), trickler, karar notları, haftalık defter
+// Defter: kelimeler, yanlış defteri (aileye göre), konu notları (yerleşik anlatımlar), trickler, karar notları, haftalık defter
 import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 import { LESSONS } from "../content";
@@ -17,8 +17,9 @@ import { Box, Btn, Card, Chip, Empty, Inl, LightBadge, List, Row, Seg, T, Table,
 import { ease } from "../ui/motion";
 import { useColors } from "../ui/theme";
 import { DecisionView } from "./Today";
+import { VocabBody } from "./Vocab";
 
-type DT = "yanlis" | "notlar" | "trick" | "karar" | "haftalik";
+type DT = "yanlis" | "kelimeler" | "notlar" | "trick" | "karar" | "haftalik";
 
 function MistakeRow({ m }: { m: Mistake }) {
   const c = useColors();
@@ -87,6 +88,8 @@ export function Defter() {
   if (tab === "yanlis") {
     const ids = [...new Set([...Object.keys(s.fams), ...s.mistakes.map((m) => m.fam)])].filter((k) => FAMILIES[k]).sort((a, b) => LIGHT_ORDER[fam(a).light] - LIGHT_ORDER[fam(b).light]);
     body = ids.length ? ids.map((k) => <FamCard key={k} k={k} />) : <Empty text="Henüz yanlış yok. Oturumlarda yaptığın her yanlış ve emin olmadan doğru yaptığın her soru burada hata türüne göre birikir." />;
+  } else if (tab === "kelimeler") {
+    body = <VocabBody />;
   } else if (tab === "notlar") {
     const tc = note ? CURRICULUM.find((x) => x.id === note) : null;
     body = tc && LESSONS[tc.id] ? (
@@ -178,7 +181,7 @@ export function Defter() {
     <ScrollView contentContainerStyle={st.screen}>
       <T v="h2">Defter</T>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <Seg<DT> value={tab} onChange={(k) => { setTab(k); setNote(null); nav.tab("defter", k); }} items={[["yanlis", "Yanlış defteri"], ["notlar", "Konu notları"], ["trick", "Trickler"], ["karar", "Karar notları"], ["haftalik", "Haftalık defter"]]} />
+        <Seg<DT> value={tab} onChange={(k) => { setTab(k); setNote(null); nav.tab("defter", k); }} items={[["yanlis", "Yanlışlar"], ["kelimeler", "Kelimeler"], ["notlar", "Konu notları"], ["trick", "Cep kartı"], ["karar", "Karar notları"], ["haftalik", "Çalışma defteri"]]} />
       </ScrollView>
       {body}
     </ScrollView>

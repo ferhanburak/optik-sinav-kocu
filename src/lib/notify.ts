@@ -36,7 +36,7 @@ export async function syncReminders(ask = true): Promise<boolean> {
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, ...hm(p.vocabTime), channelId },
     });
     await Notifications.scheduleNotificationAsync({
-      content: { title: "Haftalık defter", body: "Haftalık defterin hazır: Defter › Haftalık defter." },
+      content: { title: "Haftalık defter", body: "Çalışma defterin hazır: Defter › Çalışma defteri." },
       trigger: { type: W, weekday: +p.defterDay + 1, ...hm(p.defterTime), channelId },
     });
     return true;

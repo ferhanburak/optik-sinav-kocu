@@ -1,12 +1,12 @@
-// Kelimeler: güne göre liste, filtre, 10 dk tekrar, liste yapıştırma
+// Kelimeler (Defter'in bir bölümü): güne göre liste, filtre, 10 dk tekrar, liste yapıştırma
 import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
+import { View } from "react-native";
 import { fmtDate, today } from "../lib/dates";
 import { importVocab } from "../lib/engine";
 import { nav } from "../lib/nav";
 import { useStore } from "../lib/store";
 import type { VocabItem } from "../types";
-import { Btn, Card, Empty, Input, Row, Seg, Spacer, T, st, toast } from "../ui/kit";
+import { Btn, Card, Empty, Input, Row, Seg, Spacer, T, toast } from "../ui/kit";
 import { useColors } from "../ui/theme";
 
 type VF = "all" | "due" | "prep";
@@ -25,7 +25,7 @@ export function VocabCard({ v }: { v: VocabItem }) {
   );
 }
 
-export function Vocab() {
+export function VocabBody() {
   const s = useStore();
   const [f, setF] = useState<VF>("all");
   const [txt, setTxt] = useState("");
@@ -34,10 +34,9 @@ export function Vocab() {
   list.forEach((v) => (byDay[v.day] = byDay[v.day] || []).push(v));
   const days = Object.keys(byDay).sort().reverse();
   return (
-    <ScrollView contentContainerStyle={st.screen}>
+    <>
       <Row wrap={false} style={{ alignItems: "flex-start" }}>
         <View style={{ flex: 1 }}>
-          <T v="h2">Kelimeler</T>
           <T v="small" muted>Her oturumda 15 yeni kelime, dünkülerden 5 tekrar. Bildiğin kelime daha seyrek, bilmediğin ertesi gün yeniden gelir.</T>
         </View>
         <Btn kind="pri" title="10 dk tekrar" disabled={!s.vocab.length} onPress={() => nav.open({ kind: "vrev" })} />
@@ -63,6 +62,6 @@ export function Vocab() {
         <Input multiline value={txt} onChangeText={setTxt} placeholder={"alleviate - hafifletmek - The drug alleviates pain.\n🔹 attribute to - bir şeye bağlamak"} style={{ minHeight: 90, textAlignVertical: "top" }} />
         <Row><Btn title="Ekle" onPress={() => { const n = importVocab(txt); setTxt(""); toast(`${n} kelime eklendi.`); }} /></Row>
       </Card>
-    </ScrollView>
+    </>
   );
 }

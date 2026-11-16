@@ -17,18 +17,27 @@ import { Modals } from "./src/screens/Modals";
 import { Plan } from "./src/screens/Plan";
 import { Progress } from "./src/screens/Progress";
 import { Today } from "./src/screens/Today";
-import { Vocab } from "./src/screens/Vocab";
 import { Backdrop } from "./src/ui/Backdrop";
 import { Brand } from "./src/ui/Brand";
 import { Btn, Toasts } from "./src/ui/kit";
-import { FadeIn } from "./src/ui/motion";
-import { TabBar } from "./src/ui/TabBar";
-import { useColors } from "./src/ui/theme";
+import { FadeIn, Press } from "./src/ui/motion";
+import { TabBar, TabIcon, type IconId } from "./src/ui/TabBar";
+import { elev, useColors } from "./src/ui/theme";
+
+/** Üst çubuktaki yuvarlak simge düğmesi (cam) */
+function IconBtn({ icon, label, onPress }: { icon: IconId; label: string; onPress: () => void }) {
+  const c = useColors();
+  return (
+    <Press accessibilityRole="button" accessibilityLabel={label} hitSlop={6} onPress={onPress} inner={{ width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: c.paper, borderColor: c.line, borderWidth: 1, boxShadow: elev(c) }}>
+      <TabIcon id={icon} color={c.ink} size={18} />
+    </Press>
+  );
+}
 
 function Main() {
   const c = useColors();
   const n = useNav();
-  const Screen = { bugun: Today, plan: Plan, defter: Defter, kelimeler: Vocab, deneme: Mock, ilerleme: Progress }[n.tab];
+  const Screen = { bugun: Today, plan: Plan, deneme: Mock, defter: Defter, ilerleme: Progress }[n.tab];
   const p = n.player;
 
   // Sınav seçilmediyse ilk ekran sınav seçimi
@@ -51,7 +60,8 @@ function Main() {
         <Brand />
         <View style={{ flex: 1 }} />
         <Btn sm title="‹ Sınavlarım" onPress={() => nav.exam(null)} />
-        <Btn sm title={`${examName(n.exam)} ayarları`} onPress={() => nav.modal({ kind: "settings" })} />
+        <IconBtn icon="ayar" label={`${examName(n.exam)} ayarları`} onPress={() => nav.modal({ kind: "settings" })} />
+        <IconBtn icon="profil" label="Profil" onPress={() => nav.modal({ kind: "profile" })} />
       </View>
       <View style={{ flex: 1 }}>
         <FadeIn key={n.tab} y={8} duration={200} style={{ flex: 1 }}>
