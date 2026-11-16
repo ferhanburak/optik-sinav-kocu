@@ -225,24 +225,21 @@ export function Today() {
         </Card>
       ) : null}
 
-      {/* Eylemler: 2 sütun; seviye testi çözülmediyse tam genişlikte öne çıkar */}
-      <T v="label" color={c.guide} style={{ marginTop: 4 }}>Ne yapmak istersin?</T>
-      <Row gap={8} style={{ alignItems: "stretch" }}>
-        <Action
-          i={0}
-          wide={!place}
-          icon="hedef"
-          title="Seviye testi"
-          badge={place ? undefined : "Önerilen"}
-          desc={place ? `Son: ${place.c}/${place.n} · ${fmtShort(place.date)}` : `${PLACEMENT.length} soru, ~40 dk. Her hata türünden sorar; planın sonuca göre kurulur.`}
-          onPress={() => nav.open({ kind: "place" })}
-        />
-        <Action i={1} icon="deneme" title="Deneme" desc={lastMock ? `Son: ${lastMock.c}/${lastMock.n} · puan ${lastMock.score}` : "Tam, yarım ya da mini; gerçek YDS dağılımında"} onPress={() => nav.tab("deneme")} />
-        <Action i={2} icon="ilerleme" title="Zayıf noktanı çalış" disabled={!weakest} desc={weakest ? `${FAMILIES[weakest[0]].n} · ${lightLabel(weakest[1].light)}` : "Soru çözdükçe en zayıf hata türün burada çıkar"} onPress={() => weakest && nav.open({ kind: "drill", f: weakest[0] })} />
-        <Action i={3} icon="defter" title="Yanlış defteri" disabled={!misN} desc={misN ? `${misN} kayıt · ${lights.red} açık hata türü` : "Yanlışların türüne göre burada birikir"} onPress={() => nav.tab("defter", "yanlis")} />
-        <Action i={4} icon="kelimeler" title="Kelime tekrarı" desc={s.vocab.length ? `${vdue} tekrar bekliyor · ${s.vocab.length} kelime` : "İlk oturumda 15 kelime eklenir"} onPress={() => (s.vocab.length ? nav.open({ kind: "vrev" }) : nav.tab("kelimeler"))} />
-        {place ? <Action i={5} icon="plan" title="Plan" desc={t ? t.t : "Bütün konular tamam"} onPress={() => nav.tab("plan")} /> : null}
-      </Row>
+      {/* Hızlı çalışma: yalnızca basınca hemen bir şey başlatan kutular. Başka sekmeye götüren kutu yok; onlar alt çubukta. */}
+      {!place || weakest || vdue ? (
+        <>
+          <T v="label" color={c.guide} style={{ marginTop: 4 }}>Hızlı çalışma</T>
+          <Row gap={8} style={{ alignItems: "stretch" }}>
+            {!place ? (
+              <Action i={0} wide icon="hedef" title="Seviye testi" badge="Önerilen" desc={`${PLACEMENT.length} soru, ~40 dk. Her hata türünden sorar; planın sonuca göre kurulur.`} onPress={() => nav.open({ kind: "place" })} />
+            ) : null}
+            {weakest ? (
+              <Action i={1} icon="ilerleme" title="Zayıf noktanı çalış" desc={`${FAMILIES[weakest[0]].n} · ${lightLabel(weakest[1].light)} · 3 soru`} onPress={() => nav.open({ kind: "drill", f: weakest[0] })} />
+            ) : null}
+            {vdue ? <Action i={2} icon="kelimeler" title="Kelime tekrarı" desc={`${vdue} kelime tekrar bekliyor · ~10 dk`} onPress={() => nav.open({ kind: "vrev" })} /> : null}
+          </Row>
+        </>
+      ) : null}
 
       <Card>
         <Row><T v="h3">Skor eğrisi</T><Spacer /><Pressable hitSlop={8} onPress={() => nav.tab("ilerleme")}><T v="small" color={c.guide} style={{ fontWeight: "600" }}>İlerleme ›</T></Pressable></Row>
