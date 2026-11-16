@@ -1,0 +1,35 @@
+{
+  "name": "optik-sinav-kocu",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "dependencies": {
+    "@expo/metro-runtime": "~58.0.17",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "~58.0.25",
+    "expo-notifications": "~58.1.9",
+    "expo-print": "~58.0.9",
+    "expo-sharing": "~58.0.23",
+    "expo-status-bar": "~58.0.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.1",
+    "react-native-safe-area-context": "~5.11.1",
+    "react-native-svg": "15.16.0",
+    "react-native-web": "^0.21.4"
+  },
+  "devDependencies": {
+    "@types/react": "~19.3.0",
+    "esbuild": "^0.25.0",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "test": "esbuild tests/logic.test.ts --bundle --platform=node --log-level=warning --outfile=.test/logic.js --alias:@react-native-async-storage/async-storage=./tests/rn-mock.js --alias:expo-print=./tests/rn-mock.js --alias:expo-sharing=./tests/rn-mock.js && node .test/logic.js",
+    "typecheck": "tsc --noEmit",
+    "build:web": "node web/build.js"
+  },
+  "private": true
+}
