@@ -205,7 +205,7 @@ export function SessionPlayer({ sk }: { sk: P["sk"] }) {
     <Row gap={6}>
       {P.phases.map((s, i) => (
         <View key={s} style={{ flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: i === ci ? c.guide : i < ci ? c.guideSoft : c.paper, borderWidth: 1, borderColor: i === ci ? c.guide : c.line }}>
-          <Text style={{ fontSize: 12, fontWeight: "700", color: i === ci ? "#fff" : c.muted }}>{i + 1} {LABS[s]}</Text>
+          <Text style={{ fontSize: 12, fontWeight: "700", color: i === ci ? c.onGuide : c.muted }}>{i + 1} {LABS[s]}</Text>
         </View>
       ))}
     </Row>

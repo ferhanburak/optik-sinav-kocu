@@ -6,12 +6,12 @@ import { cardPick, labelType, lightLabel, saveDiag } from "../lib/engine";
 import type { CardState, Question } from "../types";
 import { Btn, Chip, Inl, Input, Row, Spacer, T } from "./kit";
 import { FadeIn, Press, haptic, useAnswerFx } from "./motion";
-import { useColors } from "./theme";
+import { elev, radius, useColors } from "./theme";
 
 export function Passage({ text }: { text: string }) {
   const c = useColors();
   return (
-    <View style={{ backgroundColor: c.bg, borderLeftWidth: 3, borderLeftColor: c.guideLine, borderRadius: 8, padding: 12 }}>
+    <View style={{ backgroundColor: c.bg, borderLeftWidth: 3, borderLeftColor: c.guideLine, borderRadius: radius.input, padding: 14 }}>
       <T v="small" style={{ lineHeight: 21 }}>{text}</T>
     </View>
   );
@@ -32,10 +32,11 @@ export function Opt({ i, text, state, onPress, disabled, sub }: { i: number; tex
       disabled={disabled || !onPress}
       onPress={onPress}
       scaleTo={0.985}
-      inner={{ flexDirection: "row", gap: 10, alignItems: "flex-start", borderWidth: 1.5, borderColor: border, backgroundColor: bg, borderRadius: 10, padding: 10, opacity: state === "tried" ? 0.45 : 1 }}
+      inner={{ flexDirection: "row", gap: 12, alignItems: "center", borderWidth: 1.5, borderColor: border, backgroundColor: bg, borderRadius: radius.opt, paddingVertical: 11, paddingHorizontal: 12, opacity: state === "tried" ? 0.45 : 1 }}
     >
-      <View style={{ width: 26, height: 26, borderRadius: 13, borderWidth: 1.5, borderColor: bubble ? border : c.guide, backgroundColor: state === "picked" ? c.ink : state === "right" ? c.ok : state === "wrong" ? c.bad : "transparent", alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ fontSize: 12, fontWeight: "700", color: bubble ? "#fff" : c.guide }}>{LETTERS[i]}</Text>
+      {/* Optik form balonu: boşken pembe kılavuz çizgisi, işaretlenince dolu ve hafif kabartmalı */}
+      <View style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 1.5, borderColor: bubble ? border : c.guide, backgroundColor: state === "picked" ? c.ink : state === "right" ? c.ok : state === "wrong" ? c.bad : c.guideSoft, alignItems: "center", justifyContent: "center", boxShadow: bubble ? `inset 0px 1px 0px ${c.shine}` : undefined }}>
+        <Text style={{ fontSize: 12, fontWeight: "800", color: bubble ? c.paper : c.guide }}>{LETTERS[i]}</Text>
       </View>
       <View style={{ flex: 1 }}>
         <T>{text}</T>
@@ -80,7 +81,7 @@ export function QuestionCard({ q, st, meta, src, onNext }: { q: Question; st: Ca
   const fc = st.famChange;
 
   return (
-    <FadeIn y={14} style={{ backgroundColor: c.paper, borderColor: c.line, borderWidth: 1, borderRadius: 14, padding: 14, gap: 12 }}>
+    <FadeIn y={14} style={{ backgroundColor: c.paper, borderColor: c.line, borderWidth: 1, borderRadius: radius.card, padding: 16, gap: 14, boxShadow: elev(c) }}>
       <Row>
         <T v="mono" color={c.guide}>{meta.title}</T>
         <Chip text={SECTIONS[q.sec] || ""} />
@@ -92,7 +93,7 @@ export function QuestionCard({ q, st, meta, src, onNext }: { q: Question; st: Ca
       <T style={{ fontSize: 16, lineHeight: 24 }}>{q.q}</T>
 
       {showLabel && L ? (
-        <View style={{ backgroundColor: c.guideSoft, borderRadius: 10, padding: 12, gap: 8 }}>
+        <View style={{ backgroundColor: c.guideSoft, borderColor: c.guideLine, borderWidth: 1, borderRadius: radius.opt, padding: 14, gap: 10 }}>
           <T v="small" style={{ fontWeight: "700" }}>Önce etiket: {L.q}</T>
           {L.t === "btn" ? (
             <>
@@ -123,14 +124,14 @@ export function QuestionCard({ q, st, meta, src, onNext }: { q: Question; st: Ca
       )}
 
       {retry ? (
-        <FadeIn style={{ backgroundColor: c.markSoft, borderRadius: 10, padding: 12, gap: 4 }}>
+        <FadeIn style={{ backgroundColor: c.markSoft, borderRadius: radius.opt, padding: 14, gap: 4 }}>
           <T v="small"><Text style={{ fontWeight: "700" }}>💡 İpucu: </Text>{q.hint || fam.tool}</T>
           <T v="small" muted>Bir kez daha dene. Resmî skor ilk denemen.</T>
         </FadeIn>
       ) : null}
 
       {done ? (
-        <FadeIn delay={120} style={{ backgroundColor: c.bg, borderRadius: 10, padding: 12, gap: 8 }}>
+        <FadeIn delay={120} style={{ backgroundColor: c.bg, borderRadius: radius.opt, padding: 14, gap: 8 }}>
           <T style={{ fontWeight: "700" }} color={ok1 ? c.ok : ok2 ? c.warn : c.bad}>
             {ok1 ? (st.un ? "Doğru (emin değildin, yarım sayıldı)." : "İlk denemede doğru.") : ok2 ? "İkinci denemede doğru. Puana sayılmaz, “sonunda” olarak not edildi." : `Doğrusu ${LETTERS[q.a]}.`}
           </T>

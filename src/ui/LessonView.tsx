@@ -69,7 +69,7 @@ function Part({ p, n, reveal }: { p: LessonPart; n: number; reveal: boolean }) {
     <View style={{ gap: 10, marginTop: 8 }}>
       <Row wrap={false}>
         <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: c.guide, alignItems: "center", justifyContent: "center" }}>
-          <Text style={{ color: "#fff", fontWeight: "700" }}>{n + 1}</Text>
+          <Text style={{ color: c.onGuide, fontWeight: "700" }}>{n + 1}</Text>
         </View>
         <T v="h3" style={{ flex: 1 }}>{p.baslik}</T>
       </Row>
