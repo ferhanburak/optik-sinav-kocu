@@ -1,16 +1,17 @@
-// Optik Sınav Koçu (YDS) — ana kabuk: üst çubuk, sekmeler, tam ekran oynatıcı, pencereler
+// Optik — ana kabuk: sınav seçimi → seçilen sınavın menüsü (üst çubuk, sekmeler), tam ekran oynatıcı, pencereler
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { Modal, Text, useColorScheme, View } from "react-native";
+import { Modal, useColorScheme, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { diffDays, today } from "./src/lib/dates";
-import { nav, useNav } from "./src/lib/nav";
+import { examName } from "./src/data/exams";
+import { loadNav, nav, useNav } from "./src/lib/nav";
 import { syncReminders } from "./src/lib/notify";
-import { load, S, useStore } from "./src/lib/store";
+import { load, S } from "./src/lib/store";
 import { MockPlayer } from "./src/players/MockPlayer";
 import { SessionPlayer } from "./src/players/SessionPlayer";
 import { DrillPlayer, PlacementPlayer, VocabReviewPlayer } from "./src/players/SmallPlayers";
 import { Defter } from "./src/screens/Defter";
+import { ExamSelect } from "./src/screens/ExamSelect";
 import { Mock } from "./src/screens/Mock";
 import { Modals } from "./src/screens/Modals";
 import { Plan } from "./src/screens/Plan";
@@ -18,37 +19,37 @@ import { Progress } from "./src/screens/Progress";
 import { Today } from "./src/screens/Today";
 import { Vocab } from "./src/screens/Vocab";
 import { Backdrop } from "./src/ui/Backdrop";
-import { Btn, Chip, Toasts } from "./src/ui/kit";
+import { Brand } from "./src/ui/Brand";
+import { Btn, Toasts } from "./src/ui/kit";
 import { FadeIn } from "./src/ui/motion";
 import { TabBar } from "./src/ui/TabBar";
 import { useColors } from "./src/ui/theme";
 
-function Brand() {
-  const c = useColors();
-  return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-      <View style={{ flexDirection: "row", gap: 3 }}>
-        {[0, 1, 2].map((i) => <View key={i} style={{ width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: c.guide, backgroundColor: i === 1 ? c.guide : "transparent" }} />)}
-      </View>
-      <Text style={{ fontSize: 20, fontWeight: "800", color: c.ink, letterSpacing: -0.4 }}>Optik</Text>
-    </View>
-  );
-}
-
 function Main() {
   const c = useColors();
   const n = useNav();
-  const s = useStore();
-  const left = diffDays(today(), s.profile.examDate);
   const Screen = { bugun: Today, plan: Plan, defter: Defter, kelimeler: Vocab, deneme: Mock, ilerleme: Progress }[n.tab];
   const p = n.player;
+
+  // Sınav seçilmediyse ilk ekran sınav seçimi
+  if (!n.exam)
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={["top", "bottom"]}>
+        <Backdrop />
+        <FadeIn key="sinav" y={8} duration={200} style={{ flex: 1 }}>
+          <ExamSelect />
+        </FadeIn>
+        <Toasts />
+      </SafeAreaView>
+    );
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={["top"]}>
       <Backdrop />
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 6 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 6 }}>
         <Brand />
         <View style={{ flex: 1 }} />
-        {s.profile.examSet && left >= 0 ? <Chip text={`${left} gün kaldı`} color={c.guide} /> : null}
+        <Btn sm title={`‹ ${examName(n.exam)}`} onPress={() => nav.exam(null)} />
         <Btn sm title="Ayarlar" onPress={() => nav.modal({ kind: "settings" })} />
       </View>
       <View style={{ flex: 1 }}>
@@ -73,7 +74,7 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const scheme = useColorScheme();
   useEffect(() => {
-    load().then(() => {
+    Promise.all([load(), loadNav()]).then(() => {
       setReady(true);
       if (S.profile.remind) syncReminders(false); // izin daha önce verildiyse saatleri tazeler; ilk açılışta izin sormaz
     });

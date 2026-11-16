@@ -4,6 +4,7 @@ Optik Sınav Koçu, YDS'ye hazırlanan öğrenciler için günlük bir koçluk u
 
 Her gün aynı döngü işler: ısınma, kelimeler, konu, çözümlü örnekler, set ve değerlendirme. Ayrıca şunlar vardır:
 
+- **Sınav seçimi:** İlk ekran sınav seçimidir. Şu an YDS hazır; YÖKDİL, KPSS, ALES, TUS ve DUS "Yakında" olarak görünür. Seçim kaydedilir, üst çubuktaki düğmeyle değiştirilir.
 - **Gizli tekrar:** Hatalar türlerine göre gruplanır. Bir hata türünden yaptığın yanlış, sonraki günlerde yeni bir cümleyle yeniden sorulur.
 - **Defterler:** Yanlış defteri, karar notları, cep kartı ve çalışma defteri (PDF olarak paylaşılır).
 - **Çalışma defteri:** İlk oturumdan bugüne birikimlidir. Haftalık skorlar, alan alan gelişim, çalışılan konuların anlatımı, türüne göre hata analizi, her tuzak için yeni soruyla hata tekrar testi, kelimeler, cep kartı ve açıklamalı cevap anahtarı içerir.
