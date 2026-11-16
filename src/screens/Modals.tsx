@@ -1,6 +1,6 @@
 // Pencereler: ayarlar ve "seviye testi olmadan mı başlayalım?" onayı
 import React, { useState } from "react";
-import { Modal, Pressable, ScrollView, Switch, View } from "react-native";
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Switch, View } from "react-native";
 import { PLACEMENT } from "../data/catalog";
 import { DOW, isHm, isYmd } from "../lib/dates";
 import { nav, useNav } from "../lib/nav";
@@ -12,6 +12,7 @@ import { useColors } from "../ui/theme";
 function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <Pressable onPress={onClose} style={{ flex: 1, backgroundColor: "rgba(0,0,0,.4)", justifyContent: "center", padding: 16 }}>
         <Pressable onPress={() => {}} style={{ maxHeight: "90%" }}>
           <Card>
@@ -19,6 +20,7 @@ function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () =
           </Card>
         </Pressable>
       </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

@@ -17,7 +17,7 @@ export function DrillPlayer({ f }: { f: string }) {
   const done = P.i >= P.qs.length;
   const c = P.qs.filter((q, i) => P.cards[i] && P.cards[i].first === q.a).length;
   return (
-    <Shell title={FAMILIES[f].n} onClose={nav.close} scrollKey={P.i}>
+    <Shell title={FAMILIES[f].n} onClose={nav.close} scrollKey={P.i} progress={P.qs.length ? P.i / P.qs.length : 0}>
       {!P.qs.length ? (
         <Notice text="Bu aile için hazır soru bulunamadı." />
       ) : done ? (
@@ -66,7 +66,7 @@ export function PlacementPlayer() {
       if (P.cards[i] && P.cards[i].first === q.a) b.c++;
     });
   return (
-    <Shell title="Seviye testi" onClose={close} scrollKey={P.i}>
+    <Shell title="Seviye testi" onClose={close} scrollKey={P.i} progress={P.i / n}>
       {P.result ? (
         <>
           <Card>

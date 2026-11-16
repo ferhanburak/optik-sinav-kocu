@@ -8,7 +8,7 @@ import { nav } from "../lib/nav";
 import { S, save } from "../lib/store";
 import { Opt, Passage } from "../ui/QuestionCard";
 import { Bar, Btn, Card, Chip, Inl, Notice, Row, Spacer, T, Table, toast } from "../ui/kit";
-import { Stagger, ease, haptic } from "../ui/motion";
+import { FadeIn, Stagger, ease, haptic } from "../ui/motion";
 import { levelColor, useColors } from "../ui/theme";
 import { Shell, useMutable, useTick } from "./Shell";
 
@@ -96,6 +96,7 @@ export function MockPlayer({ mode }: { mode: MockMode }) {
     <Shell
       title={`${M.l} · ${P.total} soru`}
       onClose={close}
+      progress={answered / Math.max(1, P.total)}
       scrollKey={P.cur}
       right={<View style={{ alignItems: "flex-end" }}><T v="mono">{hhmmss(e)}</T><T v="small" color={P.limit - e < 600 ? c.bad : c.muted}>kalan {hhmmss(Math.max(0, P.limit - e))}</T></View>}
     >
@@ -133,6 +134,7 @@ export function MockPlayer({ mode }: { mode: MockMode }) {
           </Row>
         </Card>
       ) : null}
+      <FadeIn key={P.cur} y={12}>
       <Card>
         <Row>
           <T v="mono" color={c.guide}>{P.cur + 1}</T>
@@ -162,6 +164,7 @@ export function MockPlayer({ mode }: { mode: MockMode }) {
           <Btn kind="pri" title="Sonraki ›" disabled={P.cur >= P.total - 1} onPress={() => go(P.cur + 1)} />
         </Row>
       </Card>
+      </FadeIn>
     </Shell>
   );
 }

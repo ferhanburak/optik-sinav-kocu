@@ -1,11 +1,23 @@
 // Oynatıcı çerçevesi: üst çubuk (Çık, başlık, sağ öğe) + kaydırılabilir gövde
 import React, { useEffect, useReducer, useRef } from "react";
-import { ScrollView, View } from "react-native";
+import { Animated, KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Btn, T } from "../ui/kit";
+import { useFill } from "../ui/motion";
 import { useColors } from "../ui/theme";
 
-export function Shell({ title, right, onClose, children, scrollKey }: { title: string; right?: React.ReactNode; onClose: () => void; children: React.ReactNode; scrollKey?: string | number }) {
+function ProgressLine({ value }: { value: number }) {
+  const c = useColors();
+  const width = useFill(value * 100, 350);
+  return (
+    <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: 100, now: Math.round(value * 100) }} style={{ height: 3, backgroundColor: c.line }}>
+      <Animated.View style={{ width, height: 3, backgroundColor: c.guide, borderTopRightRadius: 3, borderBottomRightRadius: 3 }} />
+    </View>
+  );
+}
+
+/** progress: 0–1 arası; verilirse üst çubuğun altında ince bir ilerleme çizgisi gösterilir */
+export function Shell({ title, right, onClose, children, scrollKey, progress }: { title: string; right?: React.ReactNode; onClose: () => void; children: React.ReactNode; scrollKey?: string | number; progress?: number }) {
   const c = useColors();
   const ref = useRef<React.ComponentRef<typeof ScrollView>>(null);
   useEffect(() => {
@@ -18,9 +30,12 @@ export function Shell({ title, right, onClose, children, scrollKey }: { title: s
         <T v="small" numberOfLines={1} style={{ flex: 1, fontWeight: "700" }}>{title}</T>
         {right}
       </View>
-      <ScrollView ref={ref} contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
-        {children}
-      </ScrollView>
+      {progress !== undefined ? <ProgressLine value={Math.max(0, Math.min(1, progress))} /> : null}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+        <ScrollView ref={ref} contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 60 }} keyboardShouldPersistTaps="handled">
+          {children}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

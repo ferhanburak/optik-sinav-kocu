@@ -11,7 +11,7 @@ import type { CardState, Decision, Question, Topic, VocabItem } from "../types";
 import { LessonView } from "../ui/LessonView";
 import { QuestionCard } from "../ui/QuestionCard";
 import { Btn, Card, Count, LightBadge, Notice, Row, Seg, Spacer, T, Table, toast } from "../ui/kit";
-import { FadeIn, Stagger, useFill } from "../ui/motion";
+import { Stagger } from "../ui/motion";
 import { useColors } from "../ui/theme";
 import { DecisionView, PlanLines, sessionPlanLines } from "../screens/Today";
 import { VocabCard } from "../screens/Vocab";
@@ -215,6 +215,7 @@ export function SessionPlayer({ sk }: { sk: P["sk"] }) {
     <Shell
       title={`${P.topic ? P.topic.t : "Oturum"} · ${fmtShort(today())}`}
       onClose={close}
+      progress={(ci + (P.phase === "warm" ? P.wi / Math.max(1, P.warm.length) : P.phase === "test" ? P.ti / Math.max(1, P.test.length) : 0)) / Math.max(1, P.phases.length - 1)}
       scrollKey={`${P.phase}-${P.wi}-${P.ti}-${P.lessonPart}`}
       right={running ? (
         <Row gap={6} wrap={false}>
