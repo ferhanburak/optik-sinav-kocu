@@ -147,6 +147,10 @@ export interface SessionRec {
   pf: number | null;
   spq: number | null;
   dur: number;
+  /** Günün türü: konu, tekrar (açık kapama) */
+  type?: string;
+  /** false → set bitirilmeden çıkıldı, gün tamamlanmış sayılmaz */
+  done?: boolean;
 }
 
 export interface Decision {
@@ -183,6 +187,9 @@ export interface Profile {
   days: number[];
   format: "step" | "all";
   remind: boolean;
+  /** Plan modeli: kullanıcı başta seçer */
+  model?: "sirali" | "uyarlanan" | "acik";
+  modelSet?: boolean;
 }
 
 export interface State {
@@ -201,6 +208,10 @@ export interface State {
   skips: string[];
   todos: { id: string; t: string; done: boolean }[];
   seen: Record<string, string>;
+  /** Konu testleri: deneme sayısı, son ve en iyi yüzde */
+  topicLog: Record<string, { n: number; last: number; best: number; date: string; needGap?: boolean; weak?: boolean }>;
+  /** Güne özel seçimler: t = kullanıcı açık kapatmak istedi, i = hafif gün hakkı kullanıldı */
+  dayMode: Record<string, { t?: "tekrar"; i?: "hafif" }>;
 }
 
 /** Tek bir soru kartının durumu */

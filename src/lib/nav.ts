@@ -6,7 +6,7 @@ import { EXAMS } from "../data/exams";
 
 export type Tab = "bugun" | "plan" | "deneme" | "defter" | "ilerleme";
 export type Player =
-  | { kind: "session"; sk: "normal" | "short" | "A" | "B" }
+  | { kind: "session"; sk: "normal" | "short" | "A" | "B"; /** biten konuyu yeniden aç: ders + kısa test, durumu değiştirmez */ review?: string }
   | { kind: "drill"; f: string }
   | { kind: "place" }
   | { kind: "mock"; mode: MockMode }

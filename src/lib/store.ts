@@ -15,7 +15,7 @@ export function defaultState(): State {
   return {
     v: 2, onboarded: false, tanima: false, profile: defaultProfile(),
     topics: CURRICULUM.map((c, i) => ({ id: c.id, status: i === 1 ? "aktif" : "bekliyor" })),
-    fams: {}, attempts: [], mistakes: [], vocab: [], sessions: [], decisions: [], mocks: [], skips: [], todos: [], seen: {},
+    fams: {}, attempts: [], mistakes: [], vocab: [], sessions: [], decisions: [], mocks: [], skips: [], todos: [], seen: {}, topicLog: {}, dayMode: {},
   };
 }
 
@@ -24,7 +24,7 @@ export function normalize(s: any): State {
   if (!s || s.v !== 2) return d;
   s = Object.assign(d, s);
   for (const k of ["attempts", "mistakes", "vocab", "sessions", "decisions", "mocks", "skips", "todos"]) if (!Array.isArray(s[k])) s[k] = [];
-  for (const k of ["fams", "seen"]) if (!s[k] || typeof s[k] !== "object") s[k] = {};
+  for (const k of ["fams", "seen", "topicLog", "dayMode"]) if (!s[k] || typeof s[k] !== "object") s[k] = {};
   s.profile = Object.assign(defaultProfile(), s.profile || {});
   if (!Array.isArray(s.topics) || s.topics.length !== CURRICULUM.length)
     s.topics = CURRICULUM.map((c) => (s.topics || []).find((t: any) => t.id === c.id) || { id: c.id, status: "bekliyor" });
