@@ -1574,7 +1574,8 @@ function quizPhase(key,name,src,qs,err,loadTxt){
   const note=(P.fallback&&i===0?`<div class="notice">${esc(errText(err))} Yerleşik örnek sorular gösteriliyor.</div>`:"")+(key==="test"&&i===0&&P.dropped?`<div class="small muted">Doğrulamada ${P.dropped} belirsiz soru elendi.</div>`:"");
   return note+qCardHTML(q,st,{title:`${name} ${i+1}`,pos:`${i+1} / ${qs.length}`,last:i===qs.length-1,fast})}
 function curCard(){if(P.kind==="session"){const key=P.phase==="warm"?"warm":"test";const i=P[key==="warm"?"wi":"ti"];const qs=key==="warm"?P.warm:P.test;return {q:qs&&qs[i],st:P.cards[key+i],src:key==="warm"?"warm":"set"}}
-  if(P.kind==="drill"){return {q:P.qs&&P.qs[P.i],st:P.cards[P.i],src:"drill"}}return {}}
+  if(P.kind==="drill"){return {q:P.qs&&P.qs[P.i],st:P.cards[P.i],src:"drill"}}
+  if(P.kind==="place"){return {q:P.qs&&P.qs[P.i],st:P.cards[P.i],src:"seviye"}}return {}}
 function vocabQuizHTML(list,title){if(!list||!list.length)return `<div class="row"><span class="spacer"></span><button class="btn pri" data-act="snext">Devam ›</button></div>`;
   const i=P.vi;const v=list[i];if(!v)return `<div class="notice">Kelime tekrarı bitti: ${P.vres?P.vres.filter(Boolean).length:0}/${list.length} doğru.</div><div class="row"><span class="spacer"></span><button class="btn pri" data-act="${P.kind==="vrev"?"plclose":"snext"}">${P.kind==="vrev"?"Bitir":"Devam ›"}</button></div>`;
   if(!P.vst||P.vst.id!==v.id){const pool=shuffle(S.vocab.filter(x=>x.id!==v.id&&x.m!==v.m)).slice(0,3).map(x=>x.m);const opts=shuffle([v.m,...pool]);P.vst={id:v.id,opts,pick:null}}
