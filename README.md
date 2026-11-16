@@ -1,35 +1,60 @@
 # Optik Sınav Koçu (YDS)
 
-YDS'ye hazırlanan öğrenciler için günlük koçluk uygulaması: ısınma → kelimeler → konu → çözümlü örnekler → set → değerlendirme döngüsü, hata ailelerine göre gizli tekrar, yanlış defteri, deneme ve ilerleme.
+Optik Sınav Koçu, YDS'ye hazırlanan öğrenciler için günlük bir koçluk uygulamasıdır. React Native ve Expo ile yazılmıştır.
 
-Yayındaki sürüm: https://claude.ai/artifact/LQfjaZwVp3nT6S4bCU3Rvg
+Her gün aynı döngü işler: ısınma, kelimeler, konu, çözümlü örnekler, set ve değerlendirme. Ayrıca şunlar vardır:
 
-## Dosyalar
+- **Gizli tekrar:** Hatalar ailelerine göre gruplanır. Bir aileden yaptığın yanlış, sonraki günlerde yeni bir cümleyle yeniden sorulur.
+- **Defterler:** Yanlış defteri, karar notları ve haftalık defter (PDF olarak paylaşılır).
+- **Deneme ve ilerleme:** Tam, yarım ve mini denemeler; skor eğrisi ve aile durumları.
+- **Hatırlatıcılar:** Telefon bildirimleriyle çalışır.
 
-| Dosya | Ne işe yarar |
-|---|---|
-| `optik.html` | Uygulamanın kendisi (tek sayfa). İçerik bu dosyanın içine gömülüdür. |
-| `content/bank1.js` | Soru bankası, yapı aileleri (E/H, edat, koşul, devrik, edilgen, tense, gerçek dışı, cümlecikler, modals, fiil kalıpları, used to) |
-| `content/bank2.js` | Soru bankası: türetme, kelime, çeviri, okuma, cloze, diyalog, anlamca en yakın, paragraf, anlamı bozan cümle |
-| `content/lessons1.js` | Konu anlatımları, Hafta 1–2 (t1–t11) |
-| `content/lessons2.js` | Konu anlatımları, Hafta 2 sonu – 4 (t12–t21) |
-| `content/lessons3.js` | t14 ve t17–t20 için ikinci partlar |
-| `content/build.js` | İçeriği `optik.html` içine gömer |
-
-## İçeriği düzenledikten sonra
+## Çalıştırma
 
 ```bash
-node content/build.js
+npm install
 ```
 
-Komut, `content/` altındaki dosyaları `optik.html` içindeki `/*CONTENT-START*/ … /*CONTENT-END*/` işaretlerinin arasına yazar.
+```bash
+npx expo start
+```
+
+Telefona **Expo Go** uygulamasını kur ve terminalde çıkan QR kodu okut. Tarayıcıda denemek istersen `npx expo start --web` komutunu çalıştır.
+
+## Komutlar
+
+| Komut | Ne yapar |
+|---|---|
+| `npm test` | Motor testlerini çalıştırır: içerik, ışıklar, setler, denemeler, kelimeler, karar notu |
+| `npm run typecheck` | TypeScript tip kontrolü yapar |
+| `npm run build:web` | `src/content` içeriğini web sürümüne (`web/optik.html`) gömer |
+
+## Klasörler
+
+| Yol | İçerik |
+|---|---|
+| `App.tsx` | Ana kabuk: üst çubuk, sekmeler, tam ekran oynatıcı, pencereler |
+| `src/content/` | Soru bankası (`bank1.ts`, `bank2.ts`) ve 21 konu anlatımı (`lessons1–3.ts`) |
+| `src/data/` | Katalog (bölümler, hata aileleri, müfredat, seviye testi) ve kelime bankası |
+| `src/lib/` | Motor (`engine.ts`), kayıt (`store.ts`, AsyncStorage), tarih, gezinme, bildirimler, haftalık defter |
+| `src/ui/` | Ortak bileşenler, soru kartı, konu anlatımı görünümü, grafikler |
+| `src/screens/` | Bugün, Plan, Defter, Kelimeler, Deneme, İlerleme, Ayarlar |
+| `src/players/` | Günlük oturum, drill, seviye testi, deneme, kelime tekrarı |
+| `tests/` | Motor testleri |
+| `web/` | Tek sayfalık önceki web sürümü (Claude Artifact) |
 
 ## Soru biçimi
 
+Her soru şu alanlardan oluşur:
+
 `{f: aile, s: bölüm, q: kök, o: [5 şık], a: doğru şıkkın sırası (0–4), l: beklenen etiket, h: ipucu, x: açıklama, d: [şık başına neden yanlış], t: püf}`
-Okuma ve cloze parçalarında `g` (grup numarası) ve ilk soruda `p` (parça metni) bulunur.
+
+Okuma ve cloze sorularında ayrıca `g` (grup numarası) bulunur. Grubun ilk sorusunda parça metni `p` alanındadır.
 
 ## Durum
 
-- 169 soru ve 21 konu anlatımı; tümü bağımsız bir çözümle anahtara karşı doğrulandı (295/295 uyum).
-- Yeni kelimeler, karar notları, koç yorumu ve bankada yetmeyen kısımlar (ör. tam denemede okumanın son 8 sorusu) Claude ile canlı yazılır.
+- **İçerik:** 169 soru ve 21 konu anlatımı var; 169 sorunun anahtarı bağımsız bir çözümle doğrulandı.
+- **Seviye testi:** 27 soru, 17 hata ailesinin hepsini kapsıyor.
+- **Kelime bankası:** 150 kelime ve kalıp; bunların 30'u edat kalıbı.
+- **Uygulama tamamen çevrimdışı çalışır.** Karar notu ve haftalık koç yorumu, oturum verisinden kurallara göre yazılır.
+- **Tam deneme:** Okuma bölümünün son 8 sorusu bankada henüz yok, bu yüzden tam deneme şimdilik 72 soruyla açılıyor.
