@@ -253,7 +253,7 @@ export function Toasts() {
   }, []);
   if (!list.length) return null;
   return (
-    <View pointerEvents="none" style={{ position: "absolute", left: 16, right: 16, bottom: 90, gap: 8 }}>
+    <View pointerEvents="none" style={{ position: "absolute", left: 16, right: 16, bottom: 112, gap: 8 }}>
       {list.map((m) => (
         <FadeIn key={m.id} y={16} style={{ backgroundColor: c.ink, borderRadius: radius.tile, paddingVertical: 12, paddingHorizontal: 16, boxShadow: elev(c, 2) }}>
           <Text style={{ color: c.bg, fontSize: 14, fontWeight: "500" }}>{m.text}</Text>

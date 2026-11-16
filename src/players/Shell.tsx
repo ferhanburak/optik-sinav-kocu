@@ -2,6 +2,7 @@
 import React, { useEffect, useReducer, useRef } from "react";
 import { Animated, KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Backdrop } from "../ui/Backdrop";
 import { Btn, T } from "../ui/kit";
 import { useFill } from "../ui/motion";
 import { useColors } from "../ui/theme";
@@ -25,7 +26,8 @@ export function Shell({ title, right, onClose, children, scrollKey, progress }: 
   }, [scrollKey]);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={["top", "bottom"]}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingVertical: 10, backgroundColor: c.paper, borderBottomWidth: 1, borderColor: c.line }}>
+      <Backdrop />
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingVertical: 10 }}>
         <Btn sm title="‹ Çık" onPress={onClose} />
         <T v="small" numberOfLines={1} style={{ flex: 1, fontWeight: "700" }}>{title}</T>
         {right}
