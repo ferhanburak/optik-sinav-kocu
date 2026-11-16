@@ -5,7 +5,9 @@ import { FAMILIES, PLACEMENT } from "../data/catalog";
 import { pct, shuffle, today, uid } from "../lib/dates";
 import { drillQuestions, fam, newCardState, placementApply } from "../lib/engine";
 import { nav } from "../lib/nav";
-import { S } from "../lib/store";
+import type { PlanModel } from "../lib/plan";
+import { S, save } from "../lib/store";
+import { ModelPick } from "../screens/Modals";
 import type { CardState, Question } from "../types";
 import { QuestionCard } from "../ui/QuestionCard";
 import { Btn, Card, Count, LightBadge, Notice, Row, Spacer, T, Table, toast } from "../ui/kit";
@@ -51,13 +53,17 @@ export function PlacementPlayer() {
     cards: {} as Record<number, CardState>,
     t0: Date.now(),
     result: null as null | { n: number; c: number },
+    model: (S.profile.modelSet ? S.profile.model || "uyarlanan" : "uyarlanan") as PlanModel,
   }));
   const n = P.qs.length;
   const close = () => {
     if (!P.result && P.i > 0) toast("Seviye testi yarım kaldı; Bugün ekranından yeniden başlatabilirsin.");
     nav.close();
   };
-  if (P.i >= n && !P.result) P.result = placementApply(P.qs, P.cards, P.t0);
+  if (P.i >= n && !P.result) {
+    P.result = placementApply(P.qs, P.cards, P.t0);
+    if (!S.profile.modelSet && pct(P.result.c, n) >= 70) P.model = "acik";
+  }
   const by: Record<string, { n: number; c: number }> = {};
   if (P.result)
     P.qs.forEach((q, i) => {
@@ -80,7 +86,12 @@ export function PlacementPlayer() {
             <T v="h3">Hata türleri</T>
             <Table rows={Object.entries(by).sort((a, b) => a[1].c / a[1].n - b[1].c / b[1].n).map(([k, b]) => [FAMILIES[k].n, `${b.c}/${b.n}`, <LightBadge key={k} l={fam(k).light} />])} />
           </Card>
-          <Row><Spacer /><Btn kind="pri" title="Başlayalım ›" onPress={() => { nav.close(); nav.tab("bugun"); toast("Hazırız. Bugünün oturumu “Başla” ile açılır.", 6000); }} /></Row>
+          <Card>
+            <T v="h3">Plan modelin</T>
+            <T v="small" muted>{pct(P.result.c, n) >= 70 ? "Sonucun yüksek: konuların çoğunu biliyorsun, açık kapama ağırlıklı model sana uyabilir." : "Sonucuna göre önerimiz uyarlanan model: konu günleri, gerektiğinde açık kapama."} Seçtikten sonra günleri sistem yönetir.</T>
+            <ModelPick value={P.model} onChange={(m) => { P.model = m; redraw(); }} />
+          </Card>
+          <Row><Spacer /><Btn kind="pri" title="Başlayalım ›" onPress={() => { S.profile.model = P.model; S.profile.modelSet = true; save(); nav.close(); nav.tab("bugun"); toast("Hazırız. Bugünün oturumu “Başla” ile açılır.", 6000); }} /></Row>
         </>
       ) : (
         <QuestionCard

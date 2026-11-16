@@ -6,6 +6,7 @@ import { EXAMS, examName } from "../data/exams";
 import { DOW, isHm, isYmd } from "../lib/dates";
 import { nav, useNav } from "../lib/nav";
 import { syncReminders } from "../lib/notify";
+import { model, MODELS, type PlanModel } from "../lib/plan";
 import { resetAll, S, save, useStore } from "../lib/store";
 import { Btn, Card, Field, Input, Row, Seg, Spacer, T, toast } from "../ui/kit";
 import { useColors } from "../ui/theme";
@@ -36,11 +37,25 @@ function DayPick({ value, onChange }: { value: number[]; onChange: (d: number[])
   );
 }
 
+/** Plan modeli seçici: üç model, seçilenin açıklaması altında */
+export function ModelPick({ value, onChange }: { value: PlanModel; onChange: (m: PlanModel) => void }) {
+  return (
+    <View style={{ gap: 6 }}>
+      <Row gap={6}>
+        {(Object.keys(MODELS) as PlanModel[]).map((k) => (
+          <Btn key={k} sm title={MODELS[k].l + (k === "uyarlanan" ? " (önerilen)" : "")} on={value === k} onPress={() => onChange(k)} />
+        ))}
+      </Row>
+      <T v="small" muted>{MODELS[value].d}</T>
+    </View>
+  );
+}
+
 function Settings() {
   const c = useColors();
   const p = S.profile;
   const n = useNav();
-  const [f, setF] = useState({ examDate: p.examDate, target: String(p.target), dailyMin: String(p.dailyMin), time: p.time, vocabTime: p.vocabTime, defterDay: p.defterDay, defterTime: p.defterTime, days: p.days, format: p.format });
+  const [f, setF] = useState({ examDate: p.examDate, target: String(p.target), dailyMin: String(p.dailyMin), time: p.time, vocabTime: p.vocabTime, defterDay: p.defterDay, defterTime: p.defterTime, days: p.days, format: p.format, model: model() });
   const up = (k: keyof typeof f) => (v: any) => setF({ ...f, [k]: v });
   const close = () => nav.modal(null);
   const submit = async () => {
@@ -48,7 +63,7 @@ function Settings() {
     if (![f.time, f.vocabTime, f.defterTime].every(isHm)) return toast("Saatleri SS:DD biçiminde yaz, ör. 13:58.");
     Object.assign(p, {
       examDate: f.examDate, examSet: true, target: +f.target || p.target, dailyMin: +f.dailyMin || p.dailyMin, time: f.time, vocabTime: f.vocabTime,
-      defterDay: f.defterDay, defterTime: f.defterTime, days: f.days.length ? f.days : [0, 1, 2, 3, 4, 5, 6], format: f.format,
+      defterDay: f.defterDay, defterTime: f.defterTime, days: f.days.length ? f.days : [0, 1, 2, 3, 4, 5, 6], format: f.format, model: f.model, modelSet: true,
     });
     save();
     close();
@@ -72,6 +87,8 @@ function Settings() {
         <Row gap={6}>{[1, 2, 3, 4, 5, 6, 0].map((d) => <Btn key={d} sm title={DOW[d]} on={f.defterDay === d} onPress={() => up("defterDay")(d)} />)}</Row>
       </Field>
       <Field label="Çalışma günleri"><DayPick value={f.days} onChange={up("days")} /></Field>
+      <Field label="Plan modeli"><ModelPick value={f.model} onChange={up("model")} /></Field>
+      <T v="small" muted>Günün türünü, konu sırasını ve yoğunluğu sistem belirler. Yoğunluk günlük süreden çıkar: 45 dk altı hafif, 100 dk üstü yoğun.</T>
       <Field label="Oturum formatı"><Seg value={f.format} onChange={up("format")} items={[["step", "Adım adım (önerilen)"], ["all", "Hepsi tek seferde"]]} /></Field>
       <Row><Btn kind="pri" title="Kaydet" onPress={submit} /></Row>
       <View style={{ borderTopWidth: 1, borderColor: c.line, paddingTop: 12, gap: 6 }}>
@@ -178,14 +195,21 @@ function Profile() {
 
 function IntroChoice({ sk }: { sk: "normal" | "short" | "A" | "B" }) {
   const close = () => nav.modal(null);
+  const [m, setM] = useState<PlanModel>(model());
+  const keep = () => {
+    S.profile.model = m;
+    S.profile.modelSet = true;
+  };
   return (
     <Sheet onClose={close}>
       <T v="h3">Seviye testi olmadan mı başlayalım?</T>
       <T>Testi atlarsan ilk günlerde konu anlatımından çok <T style={{ fontWeight: "700" }}>seni tanımaya yönelik</T> çalışacağız. Oturumlar her hata türünden karışık teşhis soruları ağırlıklı olacak. Eksiklerin belirlenince (yaklaşık 3 oturum) konulara geçeceğiz.</T>
       <T v="small" muted>{PLACEMENT.length} soruluk seviye testi (~40 dk) bu süreci tek seferde kısaltır; analizle planın ilk günden sana göre kurulur.</T>
-      <T style={{ fontWeight: "700" }}>Bunu kabul ediyor musun? Emin misin?</T>
-      <Btn kind="pri" title="Seviye testini çözeyim (önerilen)" onPress={() => nav.open({ kind: "place" })} />
-      <Btn title="Evet, eminim: beni tanıyarak başla" onPress={() => { S.onboarded = true; S.tanima = true; save(); nav.open({ kind: "session", sk }); }} />
+      <Field label="Plan modelin"><ModelPick value={m} onChange={setM} /></Field>
+      <T v="small" muted>Modeli sonra sınav ayarlarından değiştirebilirsin. Seçtikten sonra günleri sistem yönetir.</T>
+      <T style={{ fontWeight: "700" }}>Seviye testi olmadan başlamayı kabul ediyor musun? Emin misin?</T>
+      <Btn kind="pri" title="Seviye testini çözeyim (önerilen)" onPress={() => { keep(); save(); nav.open({ kind: "place" }); }} />
+      <Btn title="Evet, eminim: beni tanıyarak başla" onPress={() => { keep(); S.onboarded = true; S.tanima = true; save(); nav.open({ kind: "session", sk }); }} />
       <Btn kind="ghost" title="Vazgeç" onPress={close} />
     </Sheet>
   );
