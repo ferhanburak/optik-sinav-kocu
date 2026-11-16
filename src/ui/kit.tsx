@@ -1,8 +1,8 @@
 // Temel arayüz parçaları
 import React, { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from "react-native";
+import { Animated, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle } from "react-native";
 import { lightLabel } from "../lib/engine";
-import { FadeIn, Press, useFill } from "./motion";
+import { FadeIn, Press, useCountUp, useFill } from "./motion";
 import { lightColor, useColors, type Colors } from "./theme";
 
 type TV = "h1" | "h2" | "h3" | "body" | "small" | "label" | "mono" | "big";
@@ -76,9 +76,10 @@ export function LightBadge({ l }: { l: string }) {
 
 export function Bar({ value, color }: { value: number; color: string }) {
   const c = useColors();
+  const width = useFill(value);
   return (
-    <View style={{ height: 8, borderRadius: 4, backgroundColor: c.line, overflow: "hidden", flex: 1 }}>
-      <View style={{ width: `${Math.max(0, Math.min(100, value))}%`, height: "100%", backgroundColor: color }} />
+    <View accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: 100, now: Math.round(value) }} style={{ height: 8, borderRadius: 4, backgroundColor: c.line, overflow: "hidden", flex: 1 }}>
+      <Animated.View style={{ width, height: "100%", backgroundColor: color, borderRadius: 4 }} />
     </View>
   );
 }
@@ -239,12 +240,18 @@ export function Toasts() {
   return (
     <View pointerEvents="none" style={{ position: "absolute", left: 16, right: 16, bottom: 90, gap: 8 }}>
       {list.map((m) => (
-        <View key={m.id} style={{ backgroundColor: c.ink, borderRadius: 10, padding: 12 }}>
+        <FadeIn key={m.id} y={16} style={{ backgroundColor: c.ink, borderRadius: 10, padding: 12, shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 }}>
           <Text style={{ color: c.paper, fontSize: 14 }}>{m.text}</Text>
-        </View>
+        </FadeIn>
       ))}
     </View>
   );
+}
+
+/** 0'dan hedefe sayan sayı (skorlar için) */
+export function Count({ to, v = "big", color, suffix = "" }: { to: number; v?: TV; color?: string; suffix?: string }) {
+  const n = useCountUp(to);
+  return <T v={v} color={color}>{n}{suffix}</T>;
 }
 
 export const st = StyleSheet.create({

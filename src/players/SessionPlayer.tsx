@@ -10,7 +10,8 @@ import { S, save } from "../lib/store";
 import type { CardState, Decision, Question, Topic, VocabItem } from "../types";
 import { LessonView } from "../ui/LessonView";
 import { QuestionCard } from "../ui/QuestionCard";
-import { Btn, Card, LightBadge, Notice, Row, Seg, Spacer, T, Table, toast } from "../ui/kit";
+import { Btn, Card, Count, LightBadge, Notice, Row, Seg, Spacer, T, Table, toast } from "../ui/kit";
+import { FadeIn, Stagger, useFill } from "../ui/motion";
 import { useColors } from "../ui/theme";
 import { DecisionView, PlanLines, sessionPlanLines } from "../screens/Today";
 import { VocabCard } from "../screens/Vocab";
@@ -260,10 +261,13 @@ function Eval({ P }: { P: P }) {
     </View>
   );
   return (
-    <>
+    <Stagger>
       <Card>
         <Row gap={18}>
-          {stat("İlk deneme", `${s.c}/${s.n}`, true)}
+          <View style={{ minWidth: 70 }}>
+            <T v="label">İlk deneme</T>
+            <Row gap={0} wrap={false}><Count to={s.c} /><T v="big">/{s.n}</T></Row>
+          </View>
           {stat("Sonunda", `${s.cf}/${s.n}`)}
           {stat("Soru başına", `${s.spq ?? "—"} sn`, false, s.spq && s.spq < 75 ? c.bad : undefined)}
           {stat("Süre", `${s.dur} dk`)}
@@ -305,6 +309,6 @@ function Eval({ P }: { P: P }) {
           </Row>
         </Card>
       )}
-    </>
+    </Stagger>
   );
 }

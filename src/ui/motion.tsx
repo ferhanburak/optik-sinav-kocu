@@ -26,6 +26,17 @@ export function FadeIn({ children, delay = 0, y = 10, duration = 260, style }: {
   return <Animated.View style={[style, { opacity: v, transform: [{ translateY: v.interpolate({ inputRange: [0, 1], outputRange: [y, 0] }) }] }]}>{children}</Animated.View>;
 }
 
+/** Çocuklarını sırayla, küçük gecikmelerle belirtir (sonuç ekranları için) */
+export function Stagger({ children, step = 70 }: { children: React.ReactNode; step?: number }) {
+  return (
+    <>
+      {React.Children.toArray(children).map((ch, i) => (
+        <FadeIn key={i} delay={i * step}>{ch}</FadeIn>
+      ))}
+    </>
+  );
+}
+
 /** Basınca hafifçe küçülen dokunma alanı. `style` dış yerleşim, `inner` görünen kutu. */
 export function Press({ children, style, inner, scaleTo = 0.97, onPressIn, onPressOut, ...rest }: Omit<PressableProps, "style" | "children"> & { children: React.ReactNode; style?: StyleProp<ViewStyle>; inner?: StyleProp<ViewStyle>; scaleTo?: number }) {
   const s = useRef(new Animated.Value(1)).current;

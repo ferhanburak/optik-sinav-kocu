@@ -8,7 +8,8 @@ import { nav } from "../lib/nav";
 import { S, save, useStore } from "../lib/store";
 import type { Decision } from "../types";
 import { Spark } from "../ui/charts";
-import { Bar, Btn, Card, Chip, Empty, Input, LightBadge, Row, Spacer, T, st, toast } from "../ui/kit";
+import { Bar, Btn, Card, Chip, Count, Empty, Input, LightBadge, Row, Spacer, T, st, toast } from "../ui/kit";
+import { FadeIn } from "../ui/motion";
 import { useColors } from "../ui/theme";
 
 type SK = "normal" | "short" | "A" | "B";
@@ -53,21 +54,22 @@ export function DecisionView({ d }: { d: Decision }) {
   );
 }
 
-function Tile({ v, l, sub, warn }: { v: React.ReactNode; l: string; sub?: string; warn?: boolean }) {
+function Tile({ v, l, sub, warn, i = 0 }: { v: React.ReactNode; l: string; sub?: string; warn?: boolean; i?: number }) {
   const c = useColors();
   return (
-    <View style={{ flexBasis: "30%", flexGrow: 1, minWidth: 100, backgroundColor: c.paper, borderColor: c.line, borderWidth: 1, borderRadius: 12, padding: 12 }}>
+    <FadeIn delay={i * 45} style={{ flexBasis: "30%", flexGrow: 1, minWidth: 100, backgroundColor: c.paper, borderColor: c.line, borderWidth: 1, borderRadius: 12, padding: 12 }}>
       <Text style={{ fontSize: 20, fontWeight: "800", color: warn ? c.bad : c.ink, fontVariant: ["tabular-nums"] }}>{v}</Text>
       <T v="small">{l}</T>
       {sub ? <T v="small" muted>{sub}</T> : null}
-    </View>
+    </FadeIn>
   );
 }
 
-function Option({ title, desc, badge, children }: { title: string; desc?: string; badge?: string; children: React.ReactNode }) {
+function Option({ title, desc, badge, children, i = 0 }: { title: string; desc?: string; badge?: string; children: React.ReactNode; i?: number }) {
   const c = useColors();
   return (
-    <Card style={{ flexBasis: 280, flexGrow: 1 }}>
+    <FadeIn delay={120 + i * 55} style={{ flexBasis: 280, flexGrow: 1 }}>
+    <Card style={{ flexGrow: 1 }}>
       <Row>
         <T v="h3">{title}</T>
         {badge ? <Chip text={badge} color={c.guide} /> : null}
@@ -75,6 +77,7 @@ function Option({ title, desc, badge, children }: { title: string; desc?: string
       {desc ? <T v="small" muted>{desc}</T> : null}
       {children}
     </Card>
+    </FadeIn>
   );
 }
 
@@ -144,7 +147,7 @@ export function Today() {
       <Card>
         <Row wrap={false} style={{ alignItems: "flex-start" }} gap={14}>
           <View style={{ alignItems: "center", minWidth: 70 }}>
-            <Text style={{ fontSize: 34, fontWeight: "800", color: c.guide, fontVariant: ["tabular-nums"] }}>{p.examSet && left >= 0 ? left : "—"}</Text>
+            {p.examSet && left >= 0 ? <Count to={left} color={c.guide} /> : <T v="big" color={c.guide}>—</T>}
             <T v="small" muted>gün kaldı</T>
           </View>
           <View style={{ flex: 1, gap: 4 }}>
@@ -169,12 +172,12 @@ export function Today() {
       </Card>
 
       <Row gap={8}>
-        <Tile v={s.attempts.length || "—"} l="çözülen soru" sub={wk.length ? `bu hafta ${wk.length}` : "henüz yok"} />
-        <Tile v={acc === null ? "—" : `${acc}%`} l="ilk denemede doğru" sub="son 7 gün" />
-        <Tile v={spq ? `${spq} sn` : "—"} l="soru başına" sub={spq ? (spq < 75 ? "hedef ≥75 sn" : "hedefte") : "süre verisi yok"} warn={!!spq && spq < 75} />
-        <Tile v={streakDays() || "—"} l="gün seri" sub={s.sessions.length ? `${s.sessions.length} oturum` : ""} />
-        <Tile v={<Text><Text style={{ color: c.bad }}>{lights.red}</Text> · <Text style={{ color: c.warn }}>{lights.yellow}</Text> · <Text style={{ color: c.ok }}>{lights.green}</Text></Text>} l="hata ailesi" sub="açık · düzeliyor · oturdu" />
-        <Tile v={s.vocab.length || "—"} l="kelime" sub={vdue ? `${vdue} tekrarı geldi` : ""} />
+        <Tile i={0} v={s.attempts.length || "—"} l="çözülen soru" sub={wk.length ? `bu hafta ${wk.length}` : "henüz yok"} />
+        <Tile i={1} v={acc === null ? "—" : `${acc}%`} l="ilk denemede doğru" sub="son 7 gün" />
+        <Tile i={2} v={spq ? `${spq} sn` : "—"} l="soru başına" sub={spq ? (spq < 75 ? "hedef ≥75 sn" : "hedefte") : "süre verisi yok"} warn={!!spq && spq < 75} />
+        <Tile i={3} v={streakDays() || "—"} l="gün seri" sub={s.sessions.length ? `${s.sessions.length} oturum` : ""} />
+        <Tile i={4} v={<Text><Text style={{ color: c.bad }}>{lights.red}</Text> · <Text style={{ color: c.warn }}>{lights.yellow}</Text> · <Text style={{ color: c.ok }}>{lights.green}</Text></Text>} l="hata ailesi" sub="açık · düzeliyor · oturdu" />
+        <Tile i={5} v={s.vocab.length || "—"} l="kelime" sub={vdue ? `${vdue} tekrarı geldi` : ""} />
       </Row>
 
       {s.tanima ? (
@@ -187,20 +190,20 @@ export function Today() {
 
       <T v="h3">Ne yapmak istersin?</T>
       <Row gap={10} style={{ alignItems: "stretch" }}>
-        <Option title="Günlük oturum" desc={done.length ? undefined : "Isınma, kelimeler, konu, set ve değerlendirme."} badge={telafi ? "telafi" : undefined}>{sess}</Option>
-        <Option title="Seviye testi" badge={place ? undefined : "Önerilen"} desc={place ? `Son sonuç: ${place.c}/${place.n} (${fmtShort(place.date)}). Yeniden çözüp ilerlemeni görebilirsin.` : `${PLACEMENT.length} soru, ~40 dk. Her hata ailesinden soru sorar; plan ve tekrarlar sonuca göre kurulur.`}>
+        <Option i={0} title="Günlük oturum" desc={done.length ? undefined : "Isınma, kelimeler, konu, set ve değerlendirme."} badge={telafi ? "telafi" : undefined}>{sess}</Option>
+        <Option i={1} title="Seviye testi" badge={place ? undefined : "Önerilen"} desc={place ? `Son sonuç: ${place.c}/${place.n} (${fmtShort(place.date)}). Yeniden çözüp ilerlemeni görebilirsin.` : `${PLACEMENT.length} soru, ~40 dk. Her hata ailesinden soru sorar; plan ve tekrarlar sonuca göre kurulur.`}>
           <Row><Btn kind={place ? "def" : "pri"} title={place ? "Yeniden çöz" : "Testi çöz"} onPress={() => nav.open({ kind: "place" })} /></Row>
         </Option>
-        <Option title="Deneme" desc={lastMock ? `Son deneme: ${lastMock.c}/${lastMock.n} · puan ${lastMock.score} (${fmtShort(lastMock.date)}).` : "Tam (80 soru · 180 dk), yarım (40 · 90 dk) ya da mini (20 · 45 dk). Gerçek YDS dağılımında."}>
+        <Option i={2} title="Deneme" desc={lastMock ? `Son deneme: ${lastMock.c}/${lastMock.n} · puan ${lastMock.score} (${fmtShort(lastMock.date)}).` : "Tam (80 soru · 180 dk), yarım (40 · 90 dk) ya da mini (20 · 45 dk). Gerçek YDS dağılımında."}>
           <Row><Btn title="Deneme çöz" onPress={() => nav.tab("deneme")} /></Row>
         </Option>
-        <Option title="Zayıf aileni çalış" desc={weakest ? `${FAMILIES[weakest[0]].n} · ${lightLabel(weakest[1].light)}. ${FAMILIES[weakest[0]].tool}` : "Soru çözdükçe en zayıf hata ailen burada çıkar; ondan 3 soruluk drill çözersin."}>
+        <Option i={3} title="Zayıf aileni çalış" desc={weakest ? `${FAMILIES[weakest[0]].n} · ${lightLabel(weakest[1].light)}. ${FAMILIES[weakest[0]].tool}` : "Soru çözdükçe en zayıf hata ailen burada çıkar; ondan 3 soruluk drill çözersin."}>
           <Row>{weakest ? <Btn title="3 soru çöz" onPress={() => nav.open({ kind: "drill", f: weakest[0] })} /> : <Btn title="Henüz veri yok" disabled />}</Row>
         </Option>
-        <Option title="Yanlış defteri" desc={misN ? `${misN} kayıt · ${lights.red} açık aile. Her kayıtta senin cevabın, doğrusu, neden ve püf.` : "Yanlışların ve emin olmadan doğru yaptıkların burada ailesine göre birikir."}>
+        <Option i={4} title="Yanlış defteri" desc={misN ? `${misN} kayıt · ${lights.red} açık aile. Her kayıtta senin cevabın, doğrusu, neden ve püf.` : "Yanlışların ve emin olmadan doğru yaptıkların burada ailesine göre birikir."}>
           <Row><Btn title="Aç" disabled={!misN} onPress={() => nav.tab("defter", "yanlis")} /></Row>
         </Option>
-        <Option title="Kelime tekrarı" desc={s.vocab.length ? `${s.vocab.length} kelime · ${vdue} tanesinin tekrarı geldi. Akşam ${p.vocabTime}'da hatırlatılır.` : "Her oturumda 15 yeni kelime eklenir; elindeki listeyi de yapıştırabilirsin."}>
+        <Option i={5} title="Kelime tekrarı" desc={s.vocab.length ? `${s.vocab.length} kelime · ${vdue} tanesinin tekrarı geldi. Akşam ${p.vocabTime}'da hatırlatılır.` : "Her oturumda 15 yeni kelime eklenir; elindeki listeyi de yapıştırabilirsin."}>
           <Row>{s.vocab.length ? <Btn title="10 dk tekrar" onPress={() => nav.open({ kind: "vrev" })} /> : <Btn title="Kelimeler" onPress={() => nav.tab("kelimeler")} />}</Row>
         </Option>
       </Row>

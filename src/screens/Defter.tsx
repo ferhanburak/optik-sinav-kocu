@@ -14,6 +14,7 @@ import type { Mistake } from "../types";
 import { LessonView } from "../ui/LessonView";
 import { Opt, Passage } from "../ui/QuestionCard";
 import { Box, Btn, Card, Chip, Empty, Inl, LightBadge, List, Row, Seg, T, Table, st, toast } from "../ui/kit";
+import { ease } from "../ui/motion";
 import { useColors } from "../ui/theme";
 import { DecisionView } from "./Today";
 
@@ -24,7 +25,7 @@ function MistakeRow({ m }: { m: Mistake }) {
   const [open, setOpen] = useState(false);
   return (
     <View style={{ borderTopWidth: 1, borderColor: c.line, paddingTop: 8, gap: 8 }}>
-      <Pressable onPress={() => setOpen(!open)} style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+      <Pressable onPress={() => { ease(); setOpen(!open); }} style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
         <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: m.un ? c.warn : c.bad }} />
         <T v="mono" muted style={{ width: 78 }}>{mistakeRef(m)}</T>
         <T v="small" numberOfLines={open ? undefined : 1} style={{ flex: 1 }}>{m.q}</T>
@@ -65,7 +66,7 @@ function FamCard({ k }: { k: string }) {
       <Box kind="puf" title="Kontrol aracı"><T v="small">{FAMILIES[k].tool}</T></Box>
       <Row>
         <Btn sm kind="pri" title="Bu aileden 3 soru çöz" onPress={() => nav.open({ kind: "drill", f: k })} />
-        {ms.length ? <Btn sm title={open ? "Kayıtları gizle" : `${ms.length} kaydı göster`} onPress={() => setOpen(!open)} /> : null}
+        {ms.length ? <Btn sm title={open ? "Kayıtları gizle" : `${ms.length} kaydı göster`} onPress={() => { ease(); setOpen(!open); }} /> : null}
       </Row>
       {open ? ms.slice().reverse().map((m) => <MistakeRow key={m.id} m={m} />) : null}
     </Card>

@@ -8,7 +8,7 @@ import { nav } from "../lib/nav";
 import { S } from "../lib/store";
 import type { CardState, Question } from "../types";
 import { QuestionCard } from "../ui/QuestionCard";
-import { Btn, Card, LightBadge, Notice, Row, Spacer, T, Table, toast } from "../ui/kit";
+import { Btn, Card, Count, LightBadge, Notice, Row, Spacer, T, Table, toast } from "../ui/kit";
 import { Shell, useMutable } from "./Shell";
 import { VocabQuiz } from "./VocabQuiz";
 
@@ -24,7 +24,7 @@ export function DrillPlayer({ f }: { f: string }) {
         <>
           <Card>
             <Row gap={24}>
-              <View><T v="label">Sonuç</T><T v="big">{c}/{P.qs.length}</T></View>
+              <View><T v="label">Sonuç</T><Row gap={0} wrap={false}><Count to={c} /><T v="big">/{P.qs.length}</T></Row></View>
               <View><T v="label">Durum</T><LightBadge l={fam(f).light} /></View>
             </Row>
           </Card>
@@ -71,7 +71,7 @@ export function PlacementPlayer() {
         <>
           <Card>
             <Row gap={24}>
-              <View><T v="label">Seviye testi</T><T v="big">{P.result.c}/{n}</T></View>
+              <View><T v="label">Seviye testi</T><Row gap={0} wrap={false}><Count to={P.result.c} /><T v="big">/{n}</T></Row></View>
               <View><T v="label">Tahmini seviye</T><T v="h2">~{pct(P.result.c, n)}</T></View>
             </Row>
             <T v="small" muted>{n} soruluk kısa testten kaba bir tahmin. Denemeler çözdükçe netleşir.</T>

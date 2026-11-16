@@ -8,7 +8,7 @@ import { nav } from "../lib/nav";
 import { S, save } from "../lib/store";
 import { Opt, Passage } from "../ui/QuestionCard";
 import { Bar, Btn, Card, Chip, Inl, Notice, Row, Spacer, T, Table, toast } from "../ui/kit";
-import { FadeIn, ease, haptic, useCountUp } from "../ui/motion";
+import { Stagger, ease, haptic } from "../ui/motion";
 import { levelColor, useColors } from "../ui/theme";
 import { Shell, useMutable, useTick } from "./Shell";
 
@@ -106,7 +106,7 @@ export function MockPlayer({ mode }: { mode: MockMode }) {
         ))}
       </Row>
       <Row>
-        <Btn sm title={`Harita · ${answered}/${P.total}`} onPress={() => { P.showMap = !P.showMap; redraw(); }} />
+        <Btn sm title={`Harita · ${answered}/${P.total}`} onPress={() => { ease(); P.showMap = !P.showMap; redraw(); }} />
         <Spacer />
         <Btn sm kind="pri" title={P.confirm ? "Emin misin? Bitir" : "Bitir"} onPress={() => { if (!P.confirm) { P.confirm = true; redraw(); } else finish(); }} />
       </Row>
@@ -177,6 +177,7 @@ function ResultView({ P, label }: { P: any; label: string }) {
   );
   return (
     <Shell title={`${label} · sonuç`} onClose={nav.close}>
+      <Stagger>
       <Card>
         <Row gap={16}>
           {stat(r.n === 80 ? "YDS puanı" : "Tahmini puan", String(r.score), undefined, true)}
@@ -201,7 +202,7 @@ function ResultView({ P, label }: { P: any; label: string }) {
           const s = a === null ? c.muted : a === q.a ? c.ok : c.bad;
           return (
             <View key={q.id} style={{ borderTopWidth: 1, borderColor: c.line, paddingTop: 8, gap: 8 }}>
-              <Pressable onPress={() => setOpen(open === i ? null : i)} style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+              <Pressable onPress={() => { ease(); setOpen(open === i ? null : i); }} style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
                 <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: s }} />
                 <T v="mono" style={{ width: 34 }}>{i + 1}{P.uns[i] ? "★" : ""}</T>
                 <T v="small" numberOfLines={open === i ? undefined : 1} style={{ flex: 1 }}>{q.q}</T>
@@ -222,6 +223,7 @@ function ResultView({ P, label }: { P: any; label: string }) {
         })}
       </Card>
       <Row><Spacer /><Btn kind="pri" title="Bitir" onPress={nav.close} /></Row>
+      </Stagger>
     </Shell>
   );
 }
