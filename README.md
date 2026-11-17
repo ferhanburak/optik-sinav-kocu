@@ -58,7 +58,7 @@ Okuma ve cloze sorularında ayrıca `g` (grup numarası) bulunur. Grubun ilk sor
 
 ## Durum
 
-- **İçerik:** 169 soru ve 24 konu anlatımı var; 169 sorunun anahtarı bağımsız bir çözümle doğrulandı.
+- **İçerik:** 473 soru ve 24 konu anlatımı var. 169 soru konu anlatımlarının çözümlü örnekleri, 304 soru çalışma defterinin soru setlerinden (Set A–H, hata tekrar testi); bankayla çakışan 3 soru alınmadı. Bütün soruların anahtarı bağımsız, cevapları görmeden yapılan bir çözümle doğrulandı.
 - **Hata kodları:** Her yanlış kısa bir kodla kaydedilir: `I3` ısınma 3, `S5` set 5, `D2` drill 2, `T7` seviye testi 7, `M41` deneme 41.
 - **Seviye testi:** 27 soru, 17 hata türünün hepsini kapsıyor.
 - **Kelime bankası:** 150 kelime ve kalıp; bunların 30'u edat kalıbı.
