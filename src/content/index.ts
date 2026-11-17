@@ -2,6 +2,10 @@
 import type { BankQ, Lesson } from "../types";
 import { BANK1 } from "./bank1";
 import { BANK2 } from "./bank2";
+import { SETS1 } from "./sets1";
+import { SETS2 } from "./sets2";
+import { SETS3 } from "./sets3";
+import { SETS4 } from "./sets4";
 import { LESSONS1 } from "./lessons1";
 import { LESSONS2 } from "./lessons2";
 import "./lessons3"; // LESSONS2'ye ikinci partları ekler
@@ -16,7 +20,7 @@ export const qhash = (s: string) => {
 };
 
 export const BANK_ALL: BankQ[] = (() => {
-  const all = [...BANK1, ...BANK2];
+  const all = [...BANK1, ...BANK2, ...SETS1, ...SETS2, ...SETS3, ...SETS4];
   const gp: Record<number, string> = {};
   all.forEach((x) => {
     if (x.g && x.p) gp[x.g] = x.p;

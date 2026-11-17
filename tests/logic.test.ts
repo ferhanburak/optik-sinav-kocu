@@ -1,6 +1,6 @@
 // Motor testi: npm test (esbuild ile paketlenir, node ile çalışır; RN modülleri tests/rn-mock.js ile taklit edilir)
 import { BANK_ALL, LESSONS } from "../src/content";
-import { CURRICULUM, FAMILIES, PLACEMENT, SECTIONS } from "../src/data/catalog";
+import { CURRICULUM, FAMILIES, LABELS, PLACEMENT, SECTIONS } from "../src/data/catalog";
 import { VOCAB_BANK } from "../src/data/vocab";
 import * as E from "../src/lib/engine";
 import * as PL from "../src/lib/plan";
@@ -12,7 +12,11 @@ let fails = 0, passes = 0;
 const ok = (cond: unknown, msg: string) => { if (cond) passes++; else { fails++; console.log("FAIL:", msg); } };
 
 // İçerik
-ok(BANK_ALL.length === 169, `banka 169 soru (${BANK_ALL.length})`);
+ok(BANK_ALL.length === 473, `banka 473 soru (${BANK_ALL.length})`);
+ok(BANK_ALL.every((q) => q.o.length === 5 && q.a >= 0 && q.a <= 4 && (!q.d.length || (q.d.length === 5 && q.d[q.a] === ""))), "her soru 5 şıklı, cevap ve şık açıklamaları tutarlı");
+ok(new Set(BANK_ALL.map((q) => q.bid)).size === BANK_ALL.length, "soru kimlikleri benzersiz");
+ok(BANK_ALL.every((q) => { const L = LABELS[(FAMILIES[q.fam] || { lab: "" }).lab]; return !(L && L.t === "btn" && q.lab && !(L.o || []).includes(q.lab)); }), "düğmeli etiketler geçerli");
+ok(BANK_ALL.every((q) => FAMILIES[q.fam] && SECTIONS[q.sec]), "aile ve bölümler tanımlı");
 ok(new Set(BANK_ALL.map((x) => x.bid)).size === BANK_ALL.length, "bid'ler benzersiz");
 ok(BANK_ALL.every((x) => x.o.length === 5 && x.a >= 0 && x.a < 5 && FAMILIES[x.fam] && SECTIONS[x.sec]), "her soru geçerli");
 const withLesson = CURRICULUM.filter((c) => LESSONS[c.id]).map((c) => c.id);
