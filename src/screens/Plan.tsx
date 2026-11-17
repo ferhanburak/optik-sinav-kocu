@@ -82,7 +82,7 @@ export function Plan() {
                     <T v="small" style={{ fontWeight: stt === "aktif" ? "700" : "500" }}>{x.t}</T>
                     <T v="small" muted>
                       {x.f.length ? x.f.map((f) => FAMILIES[f].n).join(" · ") : x.kind === "mock" ? "Başlangıç" : x.kind === "review" ? "Deneme ve tekrar" : "Karma"}
-                      {log ? ` · son test %${log.last}${log.weak ? " (zayıf geçildi)" : ""}` : ""}
+                      {log && log.n > 0 ? ` · son test %${log.last}${log.weak ? " (zayıf geçildi)" : ""}` : ""}
                     </T>
                   </View>
                   {x.kind ? (

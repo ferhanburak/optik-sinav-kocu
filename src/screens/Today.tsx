@@ -248,7 +248,7 @@ export function Today() {
             <T v="h3">Günlük oturum</T>
             {telafi ? <Chip text="telafi" color={c.guide} /> : !done.length && !skipped ? <Chip text={DAY_LABEL[plan.type]} color={c.guide} /> : null}
             <Spacer />
-            {!done.length && !skipped ? <T v="small" muted>~{INTENSITY[inten].min} dk</T> : null}
+            {!done.length && !skipped ? <T v="small" muted>~{plan.type === "deneme" && plan.mock ? MOCK_MODES[plan.mock].min : INTENSITY[inten].min} dk</T> : null}
           </Row>
           {sess}
         </Card>

@@ -215,5 +215,15 @@ PL.skipTopic("t1", true);
 PL.applyTopicResult(CURRICULUM.find((c) => c.id === "tf")!, 9, 10);
 ok(E.activeTopic()?.id === "t2", "konu geçilince atlanan konu da geçilir");
 
+// Öngörü sınav gününde biter; bir günde hem konu hem açık kapama oturumu varsa o gün açık kapama sayılır
+resetPlan();
+S.profile.examSet = true; S.profile.examDate = addDays(today(), 3);
+const up3 = PL.upcoming(7);
+ok(up3[up3.length - 1].type === "sinav" && up3[up3.length - 1].date === addDays(today(), 3) && up3.every((d) => d.date <= addDays(today(), 3)), "öngörü sınav gününde biter");
+resetPlan();
+red(["eh", "tense", "edat"]);
+for (const k of [-2, -1]) S.sessions.push({ id: "k" + k, date: addDays(today(), k), kind: "oturum", type: "konu", done: true, topic: "t1", n: 16, c: 12, cf: 14, p: 75, pf: 88, spq: 70, dur: 50 }, { id: "t" + k, date: addDays(today(), k), kind: "tekrar", type: "tekrar", done: true, topic: "t1", n: 16, c: 9, cf: 12, p: 56, pf: 75, spq: 70, dur: 50 });
+ok(PL.dayPlan().ask === true, "aynı gün konu oturumu olsa da iki açık kapama günü sayılır");
+
 console.log(`${passes} geçti, ${fails} kaldı`);
 if (fails) process.exit(1);

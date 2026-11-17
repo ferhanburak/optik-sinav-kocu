@@ -6,7 +6,7 @@ import { addDays, diffDays, dow, today } from "./dates";
 import { activeTopic, advanceTopic, famEntries, sessionsOn } from "./engine";
 import { S, save } from "./store";
 
-export type DayType = "konu" | "tekrar" | "deneme" | "tanima";
+export type DayType = "konu" | "tekrar" | "deneme" | "tanima" | "sinav";
 export type Intensity = "hafif" | "normal" | "yogun";
 export type PlanModel = "sirali" | "uyarlanan" | "acik";
 
@@ -30,7 +30,7 @@ export const MODELS: Record<PlanModel, { l: string; d: string }> = {
   acik: { l: "Açık kapama ağırlıklı", d: "Çoğu gün zayıf hata türleri ve mini notlar. Konuları bilen ya da sınavı yakın olanlar için." },
 };
 
-export const DAY_LABEL: Record<DayType, string> = { konu: "Konu günü", tekrar: "Açık kapama günü", deneme: "Deneme günü", tanima: "Tanıma günü" };
+export const DAY_LABEL: Record<DayType, string> = { konu: "Konu günü", tekrar: "Açık kapama günü", deneme: "Deneme günü", tanima: "Tanıma günü", sinav: "Sınav" };
 
 export const model = (): PlanModel => S.profile.model || "uyarlanan";
 export const openFams = () => famEntries().filter(([, f]) => f.light === "red").map(([k]) => k);
@@ -89,15 +89,17 @@ export const answerGapQuestion = (more: boolean) => setMode({ t: more ? "tekrar"
 /* ---------- Günün türü ---------- */
 const typeOf = (s: { type?: string; kind: string }) => s.type || (s.kind === "oturum" ? "konu" : s.kind === "mock" ? "deneme" : null);
 
-/** En son üst üste kaç gün açık kapama yapıldı */
+/** En son üst üste kaç gün açık kapama yapıldı. Bir günde açık kapama oturumu varsa o gün açık kapama günü sayılır
+ *  (aynı gün ek bir konu oturumu da çözülmüş olabilir). Bugün sayılmaz: soru bugünün başında sorulur. */
 function gapStreak(): number {
-  const ss = S.sessions.filter((s) => typeOf(s) === "konu" || typeOf(s) === "tekrar").sort((a, b) => (a.date < b.date ? 1 : -1));
-  const dates: string[] = [];
-  for (const s of ss) {
-    if (typeOf(s) !== "tekrar") break;
-    if (!dates.includes(s.date)) dates.push(s.date);
+  const ss = S.sessions.filter((s) => s.date < today() && (typeOf(s) === "konu" || typeOf(s) === "tekrar"));
+  const dates = [...new Set(ss.map((s) => s.date))].sort().reverse();
+  let n = 0;
+  for (const d of dates) {
+    if (!ss.some((s) => s.date === d && typeOf(s) === "tekrar")) break;
+    n++;
   }
-  return dates.length;
+  return n;
 }
 
 /** Deneme günü geldi mi: haftada bir, son düzlükte dört günde bir. İlk deneme için en az 5 oturum beklenir. */
@@ -259,8 +261,14 @@ export function upcoming(count = 7): PlanDay[] {
     if (plan.type === "konu") take();
   }
   let nextIsKnown = done.length > 0; // bugün bittiyse yarın, şimdiki duruma göre kesindir
+  const exam = S.profile.examSet ? S.profile.examDate : null;
   for (let i = 0; i < 60 && out.length < count; i++) {
     d = addDays(d, 1);
+    // Liste sınav gününde biter
+    if (exam && d >= exam) {
+      if (d === exam) out.push({ date: d, type: "sinav", title: "YDS sınavı", sure: true });
+      break;
+    }
     if (!isStudyDay(d)) continue;
     if (nextIsKnown) {
       nextIsKnown = false;

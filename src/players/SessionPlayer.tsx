@@ -54,7 +54,9 @@ interface P {
 
 function init(sk: SK, reviewId?: string): P {
   const base = { sk, t0: Date.now(), lessonPart: 0, wi: 0, ti: 0, cards: {} as Record<string, CardState>, vocabNew: [] as VocabItem[], vrev: [] as VocabItem[], warm: [] as Question[] };
-  const plan = dayPlan();
+  const dp = dayPlan();
+  // Deneme gününün oturumu MockPlayer'dır. Bu oynatıcı o gün açılırsa (telafi seansı, kısa ek set) konu oturumu olarak çalışır.
+  const plan: DayPlan = dp.type === "deneme" ? { ...dp, type: "konu", mock: undefined, why: "Bugün deneme günü; bu ek oturum sıradaki konuyla devam ediyor." } : dp;
   // Biten konuyu yeniden açmak: ders + kısa test
   if (reviewId) {
     const t = CURRICULUM.find((c) => c.id === reviewId) || null;
