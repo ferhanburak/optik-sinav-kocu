@@ -2,11 +2,11 @@
 //   özet (cam, tam genişlik) → günlük oturum (ana kart) → 3 sütun istatistik → 2 sütun eylem kutuları → skor, aileler, karar notu, yapılacaklar
 import React, { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
-import { FAMILIES, PLACEMENT, TANIMA_GOAL } from "../data/catalog";
+import { FAMILIES, MOCK_MODES, PLACEMENT, TANIMA_GOAL } from "../data/catalog";
 import { dayOf, diffDays, fmtDate, fmtShort, isYmd, pct, today, uid } from "../lib/dates";
 import { activeTopic, dueFams, famEntries, famsKnown, isTelafi, lightLabel, sessionsOn, streakDays } from "../lib/engine";
 import { nav } from "../lib/nav";
-import { canLight, completedToday, DAY_LABEL, dayPlan, FREE_SKIPS_PER_WEEK, INTENSITY, intensityToday, isLightToday, LIGHT_PER_WEEK, lightUsed, planTitle, requestGap, setLight, skipsUsed } from "../lib/plan";
+import { answerGapQuestion, canLight, completedToday, DAY_LABEL, dayPlan, MODELS, FREE_SKIPS_PER_WEEK, INTENSITY, intensityToday, isLightToday, LIGHT_PER_WEEK, lightUsed, planTitle, requestGap, setLight, skipsUsed } from "../lib/plan";
 import { LESSONS } from "../content";
 import { S, save, useStore } from "../lib/store";
 import type { Decision } from "../types";
@@ -18,14 +18,22 @@ import { elev, radius, useColors } from "../ui/theme";
 
 type SK = "normal" | "short" | "A" | "B";
 export const startSession = (sk: SK) => {
-  if (!S.onboarded) nav.modal({ kind: "intro", sk });
-  else nav.open({ kind: "session", sk });
+  if (!S.onboarded) return nav.modal({ kind: "intro", sk });
+  const pl = dayPlan();
+  if (sk === "normal" && pl.ask) {
+    nav.tab("bugun");
+    return toast("Önce Bugün kartındaki soruyu cevapla: bir gün daha açık kapama mı, yeni konu mu?", 6000);
+  }
+  // Deneme günü: günün oturumu denemedir
+  if (sk === "normal" && pl.type === "deneme" && pl.mock) return nav.open({ kind: "mock", mode: pl.mock });
+  nav.open({ kind: "session", sk });
 };
 
 /** Günün adımları: türüne (konu / açık kapama) ve yoğunluğa göre */
 export function sessionPlanLines(short: boolean): [string, string][] {
   const p = dayPlan();
   const I = INTENSITY[short ? "hafif" : intensityToday()];
+  if (p.type === "deneme" && p.mock && !short) return [["Deneme", planTitle(p)], ["Süre", `${MOCK_MODES[p.mock].min} dk`], ["Sonra", "Yanlışlar deftere ve hata türlerine işlenir"]];
   const lines: [string, string][] = [[p.type === "tekrar" ? "Odak" : "Konu", planTitle(p)], ["Isınma", `${I.warm} soru`]];
   if (p.type === "tekrar") lines.push(["Notlar", `${p.focus.length} hata türü için mini not`]);
   else if (!short) lines.push(["Kelime", `${I.vocab} yeni + dünkülerden 5 tekrar`]);
@@ -161,7 +169,17 @@ export function Today() {
       <>
         <T v="small" muted>{plan.why}</T>
         {half ? <T v="small" color={c.warn} style={{ fontWeight: "600" }}>Bugünkü oturum yarım kaldı. Testi bitirince gün tamamlanır.</T> : null}
+        {plan.ask ? (
+          <View style={{ backgroundColor: c.warnSoft, borderRadius: 14, padding: 12, gap: 8 }}>
+            <T v="small" style={{ fontWeight: "700" }}>Bir gün daha üstüne gidelim mi, yoksa yeni konuya geçip bunları tekrarlarla mı kapatalım?</T>
+            <Row>
+              <Btn sm kind="pri" title="Bir gün daha açık kapat" onPress={() => answerGapQuestion(true)} />
+              <Btn sm title="Yeni konuya geç" onPress={() => answerGapQuestion(false)} />
+            </Row>
+          </View>
+        ) : null}
         <PlanLines lines={sessionPlanLines(false)} />
+        {s.pending ? <T v="small" muted>Yarından geçerli: {MODELS[s.pending.model].l} model · günde {s.pending.dailyMin} dk · haftada {s.pending.days.length} gün.</T> : null}
         <Row gap={6}>
           <T v="small" muted>Yoğunluk:</T>
           <Chip text={INTENSITY[inten].l} color={c.guide} />
@@ -172,10 +190,10 @@ export function Today() {
           ) : null}
         </Row>
         <Row style={{ marginTop: 4 }}>
-          <Btn kind="pri" title={half ? "Devam et" : "Başla"} onPress={() => startSession("normal")} />
+          <Btn kind="pri" disabled={!!plan.ask} title={half ? "Devam et" : plan.type === "deneme" ? "Denemeyi başlat" : "Başla"} onPress={() => startSession("normal")} />
           {plan.asked ? (
             <Btn sm title="Planlanan güne dön" onPress={() => requestGap(false)} />
-          ) : plan.type === "konu" ? (
+          ) : (plan.type === "konu" || plan.type === "deneme") && !plan.ask ? (
             <Btn sm title="Açıkları kapatmak istiyorum" onPress={() => requestGap(true)} />
           ) : null}
           <Btn sm kind="ghost" title="Bugün yok" onPress={() => {

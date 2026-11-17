@@ -66,7 +66,7 @@ export function advanceTopic(): Topic | null {
   const i = S.topics.findIndex((x) => x.status === "aktif");
   if (i < 0) return null;
   S.topics[i].status = "tamam";
-  const n = S.topics[i + 1];
+  const n = S.topics.slice(i + 1).find((t) => t.status === "bekliyor"); // atlanan konular geçilir
   if (n) {
     n.status = "aktif";
     return CURRICULUM.find((c) => c.id === n.id) || null;

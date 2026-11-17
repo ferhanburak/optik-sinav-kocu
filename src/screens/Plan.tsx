@@ -7,7 +7,7 @@ import { addDays, diffDays, DOW, fmtDate, fmtShort, MONTHS, pad, today, ymd } fr
 import { sessionsOn, topicStatus } from "../lib/engine";
 import { nav } from "../lib/nav";
 import { syncReminders } from "../lib/notify";
-import { DAY_LABEL, expectedFinish, model, MODELS, PASS, upcoming } from "../lib/plan";
+import { canSkipTopics, DAY_LABEL, expectedFinish, model, MODELS, PASS, skipTopic, upcoming } from "../lib/plan";
 import { useStore } from "../lib/store";
 import { Btn, Card, Chip, Notice, Row, Spacer, T, st, toast } from "../ui/kit";
 import { useColors } from "../ui/theme";
@@ -29,6 +29,7 @@ export function Plan() {
   };
   const days = upcoming(7);
   const fin = expectedFinish();
+  const late = canSkipTopics() || CURRICULUM.some((x) => s.topicLog[x.id]?.skipped);
 
   return (
     <ScrollView contentContainerStyle={st.screen} showsVerticalScrollIndicator={false}>
@@ -40,11 +41,13 @@ export function Plan() {
       {/* Özet: konuların beklenen bitişi ve sınava kalan pay */}
       {fin.date ? (
         fin.buffer !== null && fin.buffer < 0 ? (
-          <Notice warn text={`Bu hızla ${fin.left} konunun bitişi ${fmtShort(fin.date)}: sınavdan ${-fin.buffer} gün sonra. Sınav ayarlarından günlük süreyi artırabilir, çalışma günü ekleyebilir ya da plan modelini değiştirebilirsin.`} />
+          <Notice warn text={`Bu hızla ${fin.left} konunun bitişi ${fmtShort(fin.date)}: sınavdan ${-fin.buffer} gün sonra. Çalışma günü ekleyebilir ya da aşağıdaki listeden yetişmeyecek konuları “Atla” ile çıkarabilirsin.`} />
         ) : (
           <Notice text={`Kalan ${fin.left} konunun beklenen bitişi: ${fmtShort(fin.date)}${fin.buffer !== null ? ` · sınava ${fin.buffer} gün pay var` : ""}. Açık kapama günleri çıkarsa kayar.`} />
         )
       ) : null}
+
+      {s.pending ? <Notice text={`Yarından geçerli: ${MODELS[s.pending.model].l} model · günde ${s.pending.dailyMin} dk · haftada ${s.pending.days.length} gün.`} /> : null}
 
       <Card>
         <T v="h3">Önümüzdeki günler</T>
@@ -86,8 +89,12 @@ export function Plan() {
                     <T v="small" muted>{stt === "tamam" ? "tamam" : ""}</T>
                   ) : stt === "aktif" ? (
                     <Btn sm kind="pri" title="Devam" onPress={() => startSession("normal")} />
-                  ) : stt === "tamam" && LESSONS[x.id] ? (
+                  ) : stt === "tamam" && LESSONS[x.id] && !log?.skipped ? (
                     <Btn sm title="Aç" onPress={() => nav.open({ kind: "session", sk: "normal", review: x.id })} />
+                  ) : log?.skipped ? (
+                    <Btn sm kind="ghost" title="Atlandı · geri al" onPress={() => skipTopic(x.id, false)} />
+                  ) : stt === "bekliyor" && late ? (
+                    <Btn sm kind="ghost" title="Atla" onPress={() => { skipTopic(x.id, true); toast(`“${x.t}” atlandı. Anlatımı Defter › Konu notları'nda duruyor.`); }} />
                   ) : (
                     <T v="small" muted>{stt === "tamam" ? "tamam" : "sırada"}</T>
                   )}

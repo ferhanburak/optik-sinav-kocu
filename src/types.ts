@@ -209,9 +209,11 @@ export interface State {
   todos: { id: string; t: string; done: boolean }[];
   seen: Record<string, string>;
   /** Konu testleri: deneme sayısı, son ve en iyi yüzde */
-  topicLog: Record<string, { n: number; last: number; best: number; date: string; needGap?: boolean; weak?: boolean }>;
+  topicLog: Record<string, { n: number; last: number; best: number; date: string; needGap?: boolean; weak?: boolean; skipped?: boolean }>;
   /** Güne özel seçimler: t = kullanıcı açık kapatmak istedi, i = hafif gün hakkı kullanıldı */
-  dayMode: Record<string, { t?: "tekrar"; i?: "hafif" }>;
+  dayMode: Record<string, { t?: "tekrar" | "konu"; i?: "hafif" }>;
+  /** Yarından geçerli olacak plan değişikliği */
+  pending?: { from: string; model: "sirali" | "uyarlanan" | "acik"; days: number[]; dailyMin: number } | null;
 }
 
 /** Tek bir soru kartının durumu */
