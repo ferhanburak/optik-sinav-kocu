@@ -2,6 +2,7 @@
 // Yaklaşım: "yumuşak cam". Çerçeve (üst çubuk, sekmeler, özet kutuları) yarı saydam cam; okuma yüzeyleri (soru, konu anlatımı)
 // düz ve yüksek kontrastlı; ana düğmelerde hafif kabartma ve vurgu rengi halesi. Vurgu rengi optik formun pembe kılavuz mürekkebi.
 import { useColorScheme } from "react-native";
+import { useNav } from "../lib/nav";
 
 const light = {
   // zemin ve yüzeyler
@@ -27,8 +28,15 @@ const dark: typeof light = {
 };
 export type Colors = typeof light;
 
+/** Koyu tema mı: profildeki seçim, "sistem" ise telefonun ayarı */
+export function useDark(): boolean {
+  const sys = useColorScheme();
+  const mode = useNav().theme;
+  return mode === "system" ? sys === "dark" : mode === "dark";
+}
+
 export function useColors(): Colors {
-  return useColorScheme() === "dark" ? dark : light;
+  return useDark() ? dark : light;
 }
 
 /** Boşluk ölçeği (8'lik ızgara) */

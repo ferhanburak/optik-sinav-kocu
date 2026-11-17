@@ -13,6 +13,8 @@ export type Player =
   | { kind: "vrev" };
 export type Modal = { kind: "settings" } | { kind: "profile" } | { kind: "intro"; sk: "normal" | "short" | "A" | "B" } | null;
 
+export type ThemeMode = "system" | "light" | "dark";
+
 interface NavState {
   /** Açık sınav; null ise "Sınavlarım" ekranı gösterilir */
   exam: string | null;
@@ -20,6 +22,8 @@ interface NavState {
   exams: string[];
   /** Profil adı (isteğe bağlı) */
   name: string;
+  /** Görünüm: telefonun ayarı, açık ya da koyu */
+  theme: ThemeMode;
   tab: Tab;
   player: Player | null;
   modal: Modal;
@@ -28,13 +32,13 @@ interface NavState {
 
 const APP_KEY = "optik-app";
 const OLD_EXAM_KEY = "optik-exam";
-let N: NavState = { exam: null, exams: [], name: "", tab: "bugun", player: null, modal: null };
+let N: NavState = { exam: null, exams: [], name: "", theme: "system", tab: "bugun", player: null, modal: null };
 const subs = new Set<() => void>();
 const set = (p: Partial<NavState>) => {
   N = { ...N, ...p };
   subs.forEach((f) => f());
 };
-const persist = () => AsyncStorage.setItem(APP_KEY, JSON.stringify({ exam: N.exam, exams: N.exams, name: N.name })).catch(() => {});
+const persist = () => AsyncStorage.setItem(APP_KEY, JSON.stringify({ exam: N.exam, exams: N.exams, name: N.name, theme: N.theme })).catch(() => {});
 const isReady = (id: unknown): id is string => typeof id === "string" && EXAMS.some((e) => e.id === id && e.ready);
 
 export const nav = {
@@ -50,6 +54,10 @@ export const nav = {
   },
   setName: (name: string) => {
     set({ name: name.trim().slice(0, 40) });
+    persist();
+  },
+  setTheme: (theme: ThemeMode) => {
+    set({ theme });
     persist();
   },
   tab: (tab: Tab, defterTab?: string) => set({ tab, defterTab }),
@@ -71,7 +79,7 @@ export async function loadNav(hasYdsData: boolean) {
     if (isReady(old) && !exams.includes(old)) exams.push(old);
     if (hasYdsData && !exams.includes("yds")) exams = ["yds", ...exams];
     const last = isReady(saved?.exam) ? saved.exam : isReady(old) ? old : null;
-    set({ exams, name: typeof saved?.name === "string" ? saved.name : "", exam: exams.length === 1 && last && exams.includes(last) ? last : null });
+    set({ exams, name: typeof saved?.name === "string" ? saved.name : "", theme: saved?.theme === "light" || saved?.theme === "dark" ? saved.theme : "system", exam: exams.length === 1 && last && exams.includes(last) ? last : null });
   } catch {}
 }
 

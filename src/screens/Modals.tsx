@@ -3,12 +3,12 @@ import React, { useState } from "react";
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Switch, View } from "react-native";
 import { PLACEMENT } from "../data/catalog";
 import { EXAMS, examName } from "../data/exams";
-import { DOW, isHm, isYmd } from "../lib/dates";
+import { DOW, fmtShort, isHm, isYmd } from "../lib/dates";
 import { nav, useNav } from "../lib/nav";
 import { syncReminders } from "../lib/notify";
-import { model, MODELS, type PlanModel } from "../lib/plan";
+import { expectedFinish, INTENSITY, model, MODELS, schedulePlanChange, systemIntensity, type PlanModel } from "../lib/plan";
 import { resetAll, S, save, useStore } from "../lib/store";
-import { Btn, Card, Field, Input, Row, Seg, Spacer, T, toast } from "../ui/kit";
+import { Btn, Card, Field, Input, Notice, Row, Seg, Spacer, T, toast } from "../ui/kit";
 import { useColors } from "../ui/theme";
 
 function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
@@ -55,20 +55,28 @@ function Settings() {
   const c = useColors();
   const p = S.profile;
   const n = useNav();
-  const [f, setF] = useState({ examDate: p.examDate, target: String(p.target), dailyMin: String(p.dailyMin), time: p.time, vocabTime: p.vocabTime, defterDay: p.defterDay, defterTime: p.defterTime, days: p.days, format: p.format, model: model() });
+  const [f, setF] = useState({ examDate: p.examDate, target: String(p.target), dailyMin: String(S.pending?.dailyMin ?? p.dailyMin), time: p.time, vocabTime: p.vocabTime, defterDay: p.defterDay, defterTime: p.defterTime, days: S.pending?.days ?? p.days, format: p.format, model: S.pending?.model ?? model() });
   const up = (k: keyof typeof f) => (v: any) => setF({ ...f, [k]: v });
   const close = () => nav.modal(null);
+  const newDays = f.days.length ? f.days : [0, 1, 2, 3, 4, 5, 6];
+  const now = expectedFinish();
+  const then = expectedFinish(newDays);
   const submit = async () => {
     if (!isYmd(f.examDate)) return toast("Sınav tarihini YYYY-AA-GG biçiminde yaz.");
     if (![f.time, f.vocabTime, f.defterTime].every(isHm)) return toast("Saatleri SS:DD biçiminde yaz, ör. 13:58.");
     Object.assign(p, {
-      examDate: f.examDate, examSet: true, target: +f.target || p.target, dailyMin: +f.dailyMin || p.dailyMin, time: f.time, vocabTime: f.vocabTime,
-      defterDay: f.defterDay, defterTime: f.defterTime, days: f.days.length ? f.days : [0, 1, 2, 3, 4, 5, 6], format: f.format, model: f.model, modelSet: true,
+      examDate: f.examDate, examSet: true, target: +f.target || p.target, time: f.time, vocabTime: f.vocabTime,
+      defterDay: f.defterDay, defterTime: f.defterTime, format: f.format,
     });
+    const ch = { model: f.model, days: newDays, dailyMin: +f.dailyMin || p.dailyMin };
+    // Henüz hiç çalışılmadıysa hemen, yoksa yarından geçerli olur
+    let later = false;
+    if (S.sessions.length) later = schedulePlanChange(ch);
+    else Object.assign(p, ch, { modelSet: true });
     save();
     close();
     const ok = await syncReminders();
-    toast(p.remind && !ok ? "Ayarlar kaydedildi. Bildirim izni verilmedi." : "Ayarlar kaydedildi.");
+    toast(later ? "Kaydedildi. Plan modeli, günler ve süre değişikliği yarından geçerli olacak." : p.remind && !ok ? "Ayarlar kaydedildi. Bildirim izni verilmedi." : "Ayarlar kaydedildi.", 6000);
   };
   return (
     <Sheet onClose={close}>
@@ -89,6 +97,9 @@ function Settings() {
       <Field label="Çalışma günleri"><DayPick value={f.days} onChange={up("days")} /></Field>
       <Field label="Plan modeli"><ModelPick value={f.model} onChange={up("model")} /></Field>
       <T v="small" muted>Günün türünü, konu sırasını ve yoğunluğu sistem belirler. Yoğunluk günlük süreden çıkar: 45 dk altı hafif, 100 dk üstü yoğun.</T>
+      {then.date ? (
+        <Notice warn={then.buffer !== null && then.buffer < 0} text={`Bu ayarlarla: konuların beklenen bitişi ${fmtShort(then.date)}${now.date && now.date !== then.date ? ` (şimdi ${fmtShort(now.date)})` : ""}${then.buffer !== null ? (then.buffer < 0 ? ` · sınavdan ${-then.buffer} gün sonra` : ` · sınava ${then.buffer} gün pay`) : ""} · yoğunluk ${INTENSITY[systemIntensity(+f.dailyMin || p.dailyMin)].l.toLocaleLowerCase("tr-TR")}.${S.sessions.length ? " Model, günler ve süre değişikliği yarından geçerli olur." : ""}`} />
+      ) : null}
       <Field label="Oturum formatı"><Seg value={f.format} onChange={up("format")} items={[["step", "Adım adım (önerilen)"], ["all", "Hepsi tek seferde"]]} /></Field>
       <Row><Btn kind="pri" title="Kaydet" onPress={submit} /></Row>
       <View style={{ borderTopWidth: 1, borderColor: c.line, paddingTop: 12, gap: 6 }}>
@@ -163,7 +174,7 @@ function Profile() {
 
       <View style={section}>
         <T v="small" style={{ fontWeight: "700" }}>Görünüm</T>
-        <T v="small" muted>Açık ve koyu tema, telefonun kendi ayarını izler.</T>
+        <Seg value={n.theme} onChange={(v) => nav.setTheme(v)} items={[["system", "Telefonun ayarı"], ["light", "Açık"], ["dark", "Koyu"]]} />
       </View>
 
       <View style={section}>

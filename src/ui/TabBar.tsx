@@ -1,12 +1,12 @@
 // Alt sekme çubuğu: içeriğin üstünde yüzen cam bir hap. Seçili sekmenin arkasında kayan yumuşak bir vurgu var.
 import { BlurView } from "expo-blur";
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, Text, View, useColorScheme } from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 import type { Tab } from "../lib/nav";
 import { ND, Press, haptic, motionOff } from "./motion";
-import { elev, useColors } from "./theme";
+import { elev, useColors, useDark } from "./theme";
 
 export const TABS: [Tab, string][] = [
   ["bugun", "Bugün"],
@@ -75,7 +75,7 @@ export const TAB_BAR_SPACE = 96;
 
 export function TabBar({ value, onChange }: { value: Tab; onChange: (t: Tab) => void }) {
   const c = useColors();
-  const dark = useColorScheme() === "dark";
+  const dark = useDark();
   const insets = useSafeAreaInsets();
   const [w, setW] = useState(0);
   const idx = TABS.findIndex(([id]) => id === value);

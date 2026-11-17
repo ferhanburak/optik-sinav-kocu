@@ -1,11 +1,12 @@
 // Optik — ana kabuk: sınav seçimi → seçilen sınavın menüsü (üst çubuk, sekmeler), tam ekran oynatıcı, pencereler
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { Modal, useColorScheme, View } from "react-native";
+import { Modal, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { examName } from "./src/data/exams";
 import { loadNav, nav, useNav } from "./src/lib/nav";
 import { syncReminders } from "./src/lib/notify";
+import { applyPending } from "./src/lib/plan";
 import { load, S } from "./src/lib/store";
 import { MockPlayer } from "./src/players/MockPlayer";
 import { SessionPlayer } from "./src/players/SessionPlayer";
@@ -22,7 +23,7 @@ import { Brand } from "./src/ui/Brand";
 import { Btn, Toasts } from "./src/ui/kit";
 import { FadeIn, Press } from "./src/ui/motion";
 import { TabBar, TabIcon, type IconId } from "./src/ui/TabBar";
-import { elev, useColors } from "./src/ui/theme";
+import { elev, useColors, useDark } from "./src/ui/theme";
 
 /** Üst çubuktaki yuvarlak simge düğmesi (cam) */
 function IconBtn({ icon, label, onPress }: { icon: IconId; label: string; onPress: () => void }) {
@@ -83,18 +84,19 @@ function Main() {
 
 export default function App() {
   const [ready, setReady] = useState(false);
-  const scheme = useColorScheme();
+  const dark = useDark();
   useEffect(() => {
     load()
       .then(() => loadNav(S.onboarded || S.sessions.length > 0 || S.attempts.length > 0))
       .then(() => {
+      applyPending(); // dünden bekleyen plan değişikliği varsa bugün geçerli olur
       setReady(true);
       if (S.profile.remind) syncReminders(false); // izin daha önce verildiyse saatleri tazeler; ilk açılışta izin sormaz
     });
   }, []);
   return (
     <SafeAreaProvider>
-      <StatusBar style={scheme === "dark" ? "light" : "dark"} />
+      <StatusBar style={dark ? "light" : "dark"} />
       {ready ? <Main /> : null}
     </SafeAreaProvider>
   );
