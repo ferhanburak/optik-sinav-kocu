@@ -9,6 +9,11 @@ create table if not exists public.user_state (
 
 alter table public.user_state enable row level security;
 
+-- Data API erişimi: yalnızca giriş yapmış kullanıcılar (satırları aşağıdaki kurallar sınırlar).
+-- Projede "Grant API access to new tables automatically" kapalıysa bu satır gerekir.
+revoke all on public.user_state from anon;
+grant select, insert, update, delete on public.user_state to authenticated;
+
 -- Herkes yalnızca kendi satırını görür ve değiştirir.
 drop policy if exists "kendi satırını oku" on public.user_state;
 create policy "kendi satırını oku" on public.user_state
