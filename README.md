@@ -39,14 +39,28 @@ Telefona **Expo Go** uygulamasını kur ve terminalde çıkan QR kodu okut. Tara
 | Yol | İçerik |
 |---|---|
 | `App.tsx` | Ana kabuk: üst çubuk, sekmeler, tam ekran oynatıcı, pencereler |
-| `src/content/` | Soru bankası (`bank1.ts`, `bank2.ts`) ve 24 konu anlatımı (`lessons1–4.ts`) |
+| `src/content/` | Soru bankası (`bank1.ts`, `bank2.ts`, defter setleri `sets1–4.ts`) ve 24 konu anlatımı (`lessons1–4.ts`) |
 | `src/data/` | Katalog (bölümler, hata türleri, müfredat, seviye testi), kelime bankası ve cep kartı |
-| `src/lib/` | Motor (`engine.ts`), kayıt (`store.ts`, AsyncStorage), tarih, gezinme, bildirimler, çalışma defteri (`defter.ts`) |
+| `src/lib/` | Motor (`engine.ts`), kayıt (`store.ts`, AsyncStorage), bulut (`cloud.ts`, Supabase) ve birleştirme (`sync.ts`), tarih, gezinme, bildirimler, çalışma defteri (`defter.ts`) |
 | `src/ui/` | Ortak bileşenler, soru kartı, konu anlatımı görünümü, grafikler |
 | `src/screens/` | Sınavlarım, Bugün, Plan, Deneme, Defter (kelimeler dahil), İlerleme, profil ve sınav ayarları |
 | `src/players/` | Günlük oturum, drill, seviye testi, deneme, kelime tekrarı |
 | `tests/` | Motor testleri |
+| `supabase/schema.sql` | Bulut tablosu ve erişim kuralları |
 | `web/` | Tek sayfalık önceki web sürümü (Claude Artifact) |
+
+## Hesap ve eşitleme (Supabase)
+
+Uygulama girişsiz tam çalışır. `.env` dosyası varsa profil ekranında **Google ile giriş yap** düğmesi açılır; giriş yapınca çalışma verileri hesaba eşitlenir. Kayıt listeleri (cevaplar, oturumlar, yanlışlar, kelimeler, denemeler) iki cihazdan birleştirilir; profil, plan ve konu durumları gibi tek değerli alanlarda en son değişen cihaz kazanır. Bir cihaz bir hesapla ilk kez eşitlendiğinde bu alanlar buluttan gelir.
+
+Kurulum (bir kez):
+
+1. supabase.com'da yeni proje aç. **SQL Editor**'da `supabase/schema.sql` dosyasını çalıştır.
+2. `.env.example` dosyasını `.env` olarak kopyala; **Project Settings → API** sayfasındaki Project URL ve anon key değerlerini yaz. Anon key uygulamaya gömülür; veriyi tablo kuralları (RLS) korur.
+3. Google Cloud Console'da **OAuth consent screen**'i ayarla, sonra **Credentials → OAuth client ID → Web application** oluştur. Authorized redirect URI: `https://PROJE-KIMLIGI.supabase.co/auth/v1/callback`.
+4. Supabase'de **Authentication → Providers → Google**'ı aç, Google'dan aldığın Client ID ve Client Secret'ı yaz.
+5. **Authentication → URL Configuration → Redirect URLs** listesine şunları ekle: `optik://**` (kurulu uygulama), `exp://**` (Expo Go), `http://localhost:8081` (tarayıcıda deneme).
+6. `.env` değişince Expo'yu `--clear` ile yeniden başlat.
 
 ## Soru biçimi
 
@@ -62,6 +76,6 @@ Okuma ve cloze sorularında ayrıca `g` (grup numarası) bulunur. Grubun ilk sor
 - **Hata kodları:** Her yanlış kısa bir kodla kaydedilir: `I3` ısınma 3, `S5` set 5, `D2` drill 2, `T7` seviye testi 7, `M41` deneme 41.
 - **Seviye testi:** 27 soru, 17 hata türünün hepsini kapsıyor.
 - **Kelime bankası:** 150 kelime ve kalıp; bunların 30'u edat kalıbı.
-- **Uygulama tamamen çevrimdışı çalışır.** Karar notu ve haftalık koç yorumu, oturum verisinden kurallara göre yazılır.
+- **Uygulama çevrimdışı çalışır;** bulut eşitlemesi isteğe bağlıdır ve internet gelince kendiliğinden yapılır. Karar notu ve haftalık koç yorumu, oturum verisinden kurallara göre yazılır.
 - **Tam deneme:** Okuma bölümünün son 8 sorusu bankada henüz yok, bu yüzden tam deneme şimdilik 72 soruyla açılıyor.
 - **Web sürümü:** `web/optik.html` eski 21 konuyla duruyor; yeni üç konu, cep kartı ve yeni defter yalnızca mobil uygulamada var.
