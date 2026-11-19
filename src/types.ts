@@ -214,6 +214,10 @@ export interface State {
   dayMode: Record<string, { t?: "tekrar" | "konu"; i?: "hafif" }>;
   /** Yarından geçerli olacak plan değişikliği */
   pending?: { from: string; model: "sirali" | "uyarlanan" | "acik"; days: number[]; dailyMin: number } | null;
+  /** Son yerel değişikliğin zamanı (ms); eşitlemede hangi tarafın yeni olduğunu belirler */
+  upd?: number;
+  /** Silinen yapılacakların kimlikleri; eşitlemede geri gelmesinler diye */
+  gone?: string[];
 }
 
 /** Tek bir soru kartının durumu */

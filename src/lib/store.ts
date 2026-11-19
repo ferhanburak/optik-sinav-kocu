@@ -63,14 +63,35 @@ function trim() {
 }
 
 let timer: ReturnType<typeof setTimeout> | undefined;
-/** Değişikliği ekrana yansıtır ve kısa bir gecikmeyle cihaza yazar. */
-export function save() {
-  trim();
-  emit();
+const savedSubs = new Set<() => void>();
+/** Her yerel değişiklikten sonra çağrılır (bulut eşitlemesi buna abone olur). */
+export function onSaved(f: () => void) {
+  savedSubs.add(f);
+  return () => savedSubs.delete(f);
+}
+
+function persist() {
   clearTimeout(timer);
   timer = setTimeout(() => {
     AsyncStorage.setItem(KEY, JSON.stringify(S)).catch(() => {});
   }, 400);
+}
+
+/** Değişikliği ekrana yansıtır ve kısa bir gecikmeyle cihaza yazar. */
+export function save() {
+  S.upd = Date.now();
+  trim();
+  emit();
+  persist();
+  savedSubs.forEach((f) => f());
+}
+
+/** Durumu dışarıdan (ör. buluttan birleştirilmiş hâliyle) değiştirir; yerel değişiklik sayılmaz. */
+export function replaceState(next: State) {
+  S = normalize(next);
+  trim();
+  emit();
+  persist();
 }
 
 export async function load() {

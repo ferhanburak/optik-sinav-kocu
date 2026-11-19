@@ -327,7 +327,7 @@ export function Today() {
                 <View style={{ width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: c.guide, backgroundColor: td.done ? c.guide : "transparent" }} />
                 <T v="small" style={td.done ? { textDecorationLine: "line-through", color: c.muted } : undefined}>{td.t}</T>
               </Pressable>
-              <Btn sm kind="ghost" title="Sil" onPress={() => { S.todos = S.todos.filter((x) => x.id !== td.id); save(); }} />
+              <Btn sm kind="ghost" title="Sil" onPress={() => { S.todos = S.todos.filter((x) => x.id !== td.id); S.gone = [...(S.gone || []), td.id]; save(); }} />
             </Row>
           ))
         ) : (

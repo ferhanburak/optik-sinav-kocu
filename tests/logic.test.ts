@@ -7,6 +7,7 @@ import * as PL from "../src/lib/plan";
 import { defterHTML, retestQuestions } from "../src/lib/defter";
 import { S, normalize, defaultState } from "../src/lib/store";
 import { addDays, today, uid } from "../src/lib/dates";
+import { mergeStates } from "../src/lib/sync";
 
 let fails = 0, passes = 0;
 const ok = (cond: unknown, msg: string) => { if (cond) passes++; else { fails++; console.log("FAIL:", msg); } };
@@ -228,6 +229,35 @@ resetPlan();
 red(["eh", "tense", "edat"]);
 for (const k of [-2, -1]) S.sessions.push({ id: "k" + k, date: addDays(today(), k), kind: "oturum", type: "konu", done: true, topic: "t1", n: 16, c: 12, cf: 14, p: 75, pf: 88, spq: 70, dur: 50 }, { id: "t" + k, date: addDays(today(), k), kind: "tekrar", type: "tekrar", done: true, topic: "t1", n: 16, c: 9, cf: 12, p: 56, pf: 75, spq: 70, dur: 50 });
 ok(PL.dayPlan().ask === true, "aynı gün konu oturumu olsa da iki açık kapama günü sayılır");
+
+// --- Bulut eşitlemesi: birleştirme ---
+{
+  const A = defaultState(), B = defaultState();
+  A.upd = 100; B.upd = 200;
+  A.profile.target = 60; B.profile.target = 80;
+  A.attempts.push({ t: 1, fam: "eh", sec: "gramer", ok: 1, fin: 1, u: 0, s: 30, src: "o", rep: 0, lab: "" });
+  B.attempts.push({ t: 2, fam: "eh", sec: "gramer", ok: 0, fin: 1, u: 0, s: 30, src: "o", rep: 0, lab: "" }, { t: 1, fam: "eh", sec: "gramer", ok: 1, fin: 1, u: 0, s: 30, src: "o", rep: 0, lab: "" });
+  A.sessions.push({ id: "sa", date: "2026-11-01", kind: "oturum", n: 10, c: 8, cf: 9, p: 80, pf: 90, spq: 60, dur: 30 } as any);
+  B.sessions.push({ id: "sb", date: "2026-10-30", kind: "oturum", n: 10, c: 5, cf: 6, p: 50, pf: 60, spq: 60, dur: 30 } as any);
+  A.fams.eh = { light: "yesil", wrong: 0, streak: 3, ok: 9, n: 12, last: 1, due: null, note: "" } as any;
+  B.fams.eh = { light: "kirmizi", wrong: 2, streak: 0, ok: 3, n: 5, last: 1, due: null, note: "" } as any;
+  A.vocab.push({ id: "v1", w: "mitigate", m: "hafifletmek", ex: "", prep: false, day: "", box: 3, due: "", ok: 4, bad: 1 });
+  B.vocab.push({ id: "v1", w: "mitigate", m: "hafifletmek", ex: "", prep: false, day: "", box: 1, due: "", ok: 1, bad: 0 });
+  A.todos.push({ id: "td1", t: "x", done: false }, { id: "td2", t: "y", done: false });
+  B.todos.push({ id: "td1", t: "x", done: true });
+  B.gone = ["td2"];
+  A.seen.q1 = "2026-11-01"; B.seen.q1 = "2026-11-05";
+  const M = mergeStates(A, B);
+  ok(M.profile.target === 80 && M.upd === 200, "eşitleme: tek değerli alanlarda son değişen taraf kazanır");
+  ok(M.attempts.length === 2 && M.attempts[0].t === 1, "eşitleme: cevaplar birleşir, aynı kayıt bir kez sayılır");
+  ok(M.sessions.map((x) => x.id).join() === "sb,sa", "eşitleme: oturumlar birleşir ve tarihe göre sıralanır");
+  ok(M.fams.eh.n === 12, "eşitleme: aile durumu daha çok soru görmüş taraftan gelir");
+  ok(M.vocab.length === 1 && M.vocab[0].box === 3, "eşitleme: kelime kartı daha çok tekrar görmüş taraftan gelir");
+  ok(M.todos.length === 1 && M.todos[0].done === true, "eşitleme: silinen yapılacak geri gelmez, güncel hâli kalır");
+  ok(M.seen.q1 === "2026-11-05", "eşitleme: son görülme tarihi en yenisi");
+  const M2 = mergeStates(B, A);
+  ok(M2.profile.target === 80 && M2.attempts.length === 2 && M2.fams.eh.n === 12, "eşitleme: yön fark etmez");
+}
 
 console.log(`${passes} geçti, ${fails} kaldı`);
 if (fails) process.exit(1);
