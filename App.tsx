@@ -25,6 +25,7 @@ import { Btn, Toasts } from "./src/ui/kit";
 import { FadeIn, Press } from "./src/ui/motion";
 import { TabBar, TabIcon, type IconId } from "./src/ui/TabBar";
 import { elev, useColors, useDark } from "./src/ui/theme";
+import { useWebScrollbar } from "./src/ui/scrollbar";
 
 /** Üst çubuktaki yuvarlak simge düğmesi (cam) */
 function IconBtn({ icon, label, onPress }: { icon: IconId; label: string; onPress: () => void }) {
@@ -86,6 +87,7 @@ function Main() {
 export default function App() {
   const [ready, setReady] = useState(false);
   const dark = useDark();
+  useWebScrollbar(); // webde kaydırma çubuğu temaya uyar
   useEffect(() => {
     load()
       .then(() => loadNav(S.onboarded || S.sessions.length > 0 || S.attempts.length > 0))
