@@ -3,14 +3,15 @@ import React, { useState } from "react";
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Switch, View } from "react-native";
 import { PLACEMENT } from "../data/catalog";
 import { EXAMS, examName } from "../data/exams";
-import { DOW, fmtShort, isHm, isYmd } from "../lib/dates";
+import { diffDays, dow, DOW, fmtDate, fmtShort, isHm, isYmd, today } from "../lib/dates";
+import { profileStats } from "../lib/profile";
 import { nav, useNav } from "../lib/nav";
 import { syncReminders } from "../lib/notify";
 import { expectedFinish, INTENSITY, model, MODELS, schedulePlanChange, systemIntensity, type PlanModel } from "../lib/plan";
 import { cloudReady, resetCloud, signInGoogle, signOut, syncNow, useCloud } from "../lib/cloud";
 import { resetAll, S, save, useStore } from "../lib/store";
 import { Btn, Card, Field, Input, Notice, Row, Seg, Spacer, T, toast } from "../ui/kit";
-import { useColors } from "../ui/theme";
+import { radius, useColors } from "../ui/theme";
 
 function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
@@ -129,12 +130,72 @@ function Profile() {
   };
   const mine = EXAMS.filter((x) => n.exams.includes(x.id));
   const section = { borderTopWidth: 1, borderColor: c.line, paddingTop: 12, gap: 8 } as const;
+  const cl = useCloud();
+  const ps = profileStats(s);
+  const shown = name.trim() || n.name;
+  const hours = ps.minutes >= 60 ? `${Math.floor(ps.minutes / 60)} sa ${ps.minutes % 60} dk` : `${ps.minutes} dk`;
+  const left = s.profile.examSet ? diffDays(today(), s.profile.examDate) : null;
   return (
     <Sheet onClose={close}>
       <Row><T v="h3">Profil</T><Spacer /><Btn sm kind="ghost" title="Kapat" onPress={close} /></Row>
-      <Field label="Adın (isteğe bağlı)">
-        <Input value={name} onChangeText={setName} placeholder="Sana nasıl seslenelim?" maxLength={40} onEndEditing={() => nav.setName(name)} />
-      </Field>
+
+      <Row wrap={false} gap={12}>
+        <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: c.guideSoft, borderWidth: 1, borderColor: c.guideLine, alignItems: "center", justifyContent: "center" }}>
+          <T v="h3" color={c.guide}>{shown ? shown.charAt(0).toLocaleUpperCase("tr-TR") : "?"}</T>
+        </View>
+        <View style={{ flex: 1, gap: 1 }}>
+          <T style={{ fontWeight: "700" }}>{shown || "İsimsiz çalışan"}</T>
+          <T v="small" muted>{cl.email ? cl.email : "Misafir · veriler bu cihazda"}</T>
+          {ps.since ? <T v="small" muted>{fmtDate(ps.since)} tarihinden beri çalışıyorsun</T> : null}
+        </View>
+      </Row>
+
+      <View style={{ backgroundColor: c.glass, borderColor: c.glassLine, borderWidth: 1, borderRadius: radius.tile, padding: 12, gap: 10 }}>
+        <Row wrap={false} gap={12}>
+          <View style={{ flex: 1 }}>
+            <T v="h3">{ps.streak} gün seri</T>
+            <T v="small" muted>{ps.streak ? "Bugün de çalışırsan seri uzar." : ps.days ? "Bugün bir oturumla yeni seri başlar." : "İlk oturumla serin başlar."}</T>
+          </View>
+          <View style={{ alignItems: "flex-end" }}>
+            <T style={{ fontWeight: "700" }}>{ps.best}</T>
+            <T v="small" muted>en uzun seri</T>
+          </View>
+        </Row>
+        <View accessible accessibilityLabel={`Son 7 gün: ${ps.week.filter((w) => w.on).length} gün çalıştın`} style={{ flexDirection: "row", gap: 6 }}>
+          {ps.week.map((w) => (
+            <View key={w.date} style={{ flex: 1, alignItems: "center", gap: 4 }}>
+              <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: w.on ? c.guide : "transparent", borderWidth: 1.5, borderColor: w.on ? c.guide : c.line }} />
+              <T v="small" muted style={{ fontSize: 11 }}>{DOW[dow(w.date)]}</T>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+        <Stat v={ps.days} l="çalışılan gün" sub={`${ps.sessions} oturum`} />
+        <Stat v={hours} l="toplam süre" />
+        <Stat v={ps.questions} l="çözülen soru" sub={ps.mistakes ? `${ps.mistakes} yanlış defterde` : undefined} />
+        <Stat v={ps.accuracy === null ? "—" : `%${ps.accuracy}`} l="doğruluk" sub={ps.recent === null ? undefined : `son 14 gün %${ps.recent}`} />
+        <Stat v={ps.mocks} l="deneme" sub={ps.bestMock === null ? undefined : `en iyi ${ps.bestMock} · son ${ps.lastMock}`} />
+        <Stat v={ps.vocab} l="kelime" sub={ps.vocab ? `${ps.vocabSolid} tanesi oturdu` : undefined} />
+        <Stat v={`${ps.topicsDone}/${ps.topicsAll}`} l="konu bitti" />
+        <Stat v={`${ps.green}/${ps.famsAll}`} l="hata türü yeşil" />
+      </View>
+      {ps.strong || ps.weak ? (
+        <T v="small" muted>
+          {ps.strong ? `En güçlü olduğun tür: ${ps.strong}.` : ""}
+          {ps.strong && ps.weak ? " " : ""}
+          {ps.weak ? `En çok zorlandığın: ${ps.weak}.` : ""}
+        </T>
+      ) : null}
+
+      <View style={section}>
+        <T v="small" style={{ fontWeight: "700" }}>Kişisel bilgiler</T>
+        <Field label="Adın (isteğe bağlı)">
+          <Input value={name} onChangeText={setName} placeholder="Sana nasıl seslenelim?" maxLength={40} onEndEditing={() => nav.setName(name)} />
+        </Field>
+        <T v="small" muted>{cl.email ? `E-posta: ${cl.email} (Google hesabından)` : "E-posta yok; Google ile giriş yaparsan hesabın burada görünür."}</T>
+      </View>
 
       <View style={section}>
         <T v="small" style={{ fontWeight: "700" }}>Sınavlarım</T>
@@ -144,6 +205,11 @@ function Profile() {
               <View style={{ flex: 1 }}>
                 <T v="small" style={{ fontWeight: "600" }}>{x.name}</T>
                 <T v="small" muted>{x.desc}</T>
+                {x.id === "yds" ? (
+                  <T v="small" muted>
+                    {left === null ? "Sınav tarihi girilmedi" : `${fmtDate(s.profile.examDate)} · ${left > 0 ? `${left} gün kaldı` : left === 0 ? "sınav bugün" : "sınav geçti"}`} · hedef {s.profile.target}
+                  </T>
+                ) : null}
               </View>
               <Btn sm kind="ghost" title="Listeden kaldır" onPress={() => { nav.removeExam(x.id); toast(`${x.name} listeden kaldırıldı. Çalışma verilerin duruyor; yeniden ekleyince kaldığın yerden devam edersin.`, 6000); }} />
             </Row>
@@ -273,6 +339,18 @@ function Account({ section }: { section: object }) {
           {cl.err ? <T v="small" muted>Giriş yapılamadı: {cl.err}</T> : null}
         </>
       )}
+    </View>
+  );
+}
+
+/** Profil istatistik kutusu */
+function Stat({ v, l, sub }: { v: React.ReactNode; l: string; sub?: string }) {
+  const c = useColors();
+  return (
+    <View style={{ flexBasis: "45%", flexGrow: 1, minWidth: 120, backgroundColor: c.glass, borderColor: c.glassLine, borderWidth: 1, borderRadius: radius.tile, paddingVertical: 10, paddingHorizontal: 12, gap: 1 }}>
+      <T v="h3" style={{ fontVariant: ["tabular-nums"] }}>{v}</T>
+      <T v="small" style={{ fontWeight: "600" }}>{l}</T>
+      {sub ? <T v="small" muted style={{ fontSize: 11.5, lineHeight: 15 }}>{sub}</T> : null}
     </View>
   );
 }
