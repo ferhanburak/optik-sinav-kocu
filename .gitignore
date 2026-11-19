@@ -42,3 +42,6 @@ yarn-error.*
 
 # test çıktısı
 .test/
+
+# Supabase anahtarları
+.env

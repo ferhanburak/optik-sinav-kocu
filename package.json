@@ -5,18 +5,22 @@
   "dependencies": {
     "@expo/metro-runtime": "~58.0.17",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@supabase/supabase-js": "^2.119.2",
     "expo": "~58.0.25",
     "expo-blur": "~58.0.6",
     "expo-haptics": "~58.0.8",
+    "expo-linking": "~58.0.17",
     "expo-notifications": "~58.1.9",
     "expo-print": "~58.0.9",
     "expo-sharing": "~58.0.23",
     "expo-status-bar": "~58.0.5",
+    "expo-web-browser": "~58.1.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.1",
     "react-native-safe-area-context": "~5.11.1",
     "react-native-svg": "15.16.0",
+    "react-native-url-polyfill": "^4.0.0",
     "react-native-web": "^0.21.4"
   },
   "devDependencies": {

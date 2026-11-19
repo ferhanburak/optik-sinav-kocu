@@ -2,6 +2,7 @@
   "expo": {
     "name": "Optik Sınav Koçu",
     "slug": "optik-sinav-kocu",
+    "scheme": "optik",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,7 +23,8 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-notifications"
+      "expo-notifications",
+      "expo-web-browser"
     ],
     "splash": {
       "image": "./assets/splash-icon.png",

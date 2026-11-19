@@ -7,6 +7,7 @@ import { DOW, fmtShort, isHm, isYmd } from "../lib/dates";
 import { nav, useNav } from "../lib/nav";
 import { syncReminders } from "../lib/notify";
 import { expectedFinish, INTENSITY, model, MODELS, schedulePlanChange, systemIntensity, type PlanModel } from "../lib/plan";
+import { cloudReady, resetCloud, signInGoogle, signOut, syncNow, useCloud } from "../lib/cloud";
 import { resetAll, S, save, useStore } from "../lib/store";
 import { Btn, Card, Field, Input, Notice, Row, Seg, Spacer, T, toast } from "../ui/kit";
 import { useColors } from "../ui/theme";
@@ -177,10 +178,7 @@ function Profile() {
         <Seg value={n.theme} onChange={(v) => nav.setTheme(v)} items={[["system", "Telefonun ayarı"], ["light", "Açık"], ["dark", "Koyu"]]} />
       </View>
 
-      <View style={section}>
-        <T v="small" style={{ fontWeight: "700" }}>Hesap ve yedekleme</T>
-        <T v="small" muted>Verilerin şu an yalnızca bu telefonda tutuluyor. Hesap açma ve yedekleme sonraki sürümde gelecek; uygulamayı silersen veriler de silinir.</T>
-      </View>
+      <Account section={section} />
 
       <View style={section}>
         <T v="small" style={{ fontWeight: "700" }}>Çalışma verileri</T>
@@ -190,8 +188,9 @@ function Profile() {
             sm
             title={armed ? "Emin misin? Hepsini sil" : "Çalışma verilerini sıfırla"}
             kind={armed ? "pri" : "def"}
-            onPress={() => {
+            onPress={async () => {
               if (!armed) return setArmed(true);
+              await resetCloud().catch(() => {}); // girişliyse buluttaki kopya da sıfırlanır
               resetAll();
               setArmed(false);
               toast("Çalışma verileri sıfırlandı.");
@@ -232,4 +231,48 @@ export function Modals() {
   if (n.modal.kind === "settings") return <Settings />;
   if (n.modal.kind === "profile") return <Profile />;
   return <IntroChoice sk={n.modal.sk} />;
+}
+
+/** Hesap: isteğe bağlı Google girişi ve cihazlar arası eşitleme */
+function Account({ section }: { section: object }) {
+  const cl = useCloud();
+  const [busy, setBusy] = useState(false);
+  const run = async (f: () => Promise<void>) => {
+    setBusy(true);
+    await f();
+    setBusy(false);
+  };
+  const last = cl.last ? new Date(cl.last).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }) : null;
+  return (
+    <View style={section}>
+      <T v="small" style={{ fontWeight: "700" }}>Hesap ve eşitleme</T>
+      {!cloudReady ? (
+        <T v="small" muted>Verilerin şu an yalnızca bu telefonda tutuluyor. Hesapla giriş bu sürümde henüz açık değil.</T>
+      ) : cl.email ? (
+        <>
+          <T v="small" muted>
+            {cl.email} ile giriş yaptın. Çalışma verilerin bu hesapla eşitleniyor; başka bir telefonda aynı hesapla girersen kaldığın yerden devam edersin.
+          </T>
+          <T v="small" muted>
+            {cl.status === "syncing" ? "Eşitleniyor…" : cl.status === "error" ? `Eşitlenemedi: ${cl.err}. İnternet gelince yeniden denenecek.` : last ? `Son eşitleme: ${last}` : "Henüz eşitlenmedi."}
+          </T>
+          <Row>
+            <Btn sm title="Şimdi eşitle" onPress={() => run(syncNow)} />
+            <Btn sm kind="ghost" title="Çıkış yap" onPress={() => run(signOut)} />
+          </Row>
+          <T v="small" muted>Çıkış yapınca bu telefondaki verilerin silinmez, yalnızca eşitleme durur.</T>
+        </>
+      ) : (
+        <>
+          <T v="small" muted>
+            Giriş yapmadan da her şey çalışır; veriler bu telefonda kalır. Google ile giriş yaparsan çalışmaların hesabına yedeklenir ve başka cihazlarla eşitlenir. Bu telefondaki mevcut verilerin de hesaba taşınır.
+          </T>
+          <Row>
+            <Btn sm kind="pri" title={busy ? "Bekleniyor…" : "Google ile giriş yap"} onPress={() => !busy && run(signInGoogle)} />
+          </Row>
+          {cl.err ? <T v="small" muted>Giriş yapılamadı: {cl.err}</T> : null}
+        </>
+      )}
+    </View>
+  );
 }

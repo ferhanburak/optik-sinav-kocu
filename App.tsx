@@ -8,6 +8,7 @@ import { loadNav, nav, useNav } from "./src/lib/nav";
 import { syncReminders } from "./src/lib/notify";
 import { applyPending } from "./src/lib/plan";
 import { load, S } from "./src/lib/store";
+import { initCloud } from "./src/lib/cloud";
 import { MockPlayer } from "./src/players/MockPlayer";
 import { SessionPlayer } from "./src/players/SessionPlayer";
 import { DrillPlayer, PlacementPlayer, VocabReviewPlayer } from "./src/players/SmallPlayers";
@@ -91,6 +92,7 @@ export default function App() {
       .then(() => {
       applyPending(); // dünden bekleyen plan değişikliği varsa bugün geçerli olur
       setReady(true);
+      initCloud(); // girişliyse buluttaki veriyle eşitler
       if (S.profile.remind) syncReminders(false); // izin daha önce verildiyse saatleri tazeler; ilk açılışta izin sormaz
     });
   }, []);
