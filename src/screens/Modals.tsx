@@ -19,8 +19,9 @@ function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () =
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <Pressable onPress={onClose} style={{ flex: 1, backgroundColor: "rgba(0,0,0,.4)", justifyContent: "center", padding: 16 }}>
         <Pressable onPress={() => {}} style={{ maxHeight: "90%" }}>
-          <Card>
-            <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 10 }}>{children}</ScrollView>
+          {/* flexShrink: kart en fazla pencerenin %90'ı kadar uzar, fazlası kaydırılır */}
+          <Card style={{ flexShrink: 1, minHeight: 0 }}>
+            <ScrollView style={{ flexShrink: 1 }} keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 10 }}>{children}</ScrollView>
           </Card>
         </Pressable>
       </Pressable>
