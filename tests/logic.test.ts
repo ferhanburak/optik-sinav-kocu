@@ -8,6 +8,7 @@ import { defterHTML, retestQuestions } from "../src/lib/defter";
 import { S, normalize, defaultState } from "../src/lib/store";
 import { addDays, today, uid } from "../src/lib/dates";
 import { mergeStates } from "../src/lib/sync";
+import { profileStats } from "../src/lib/profile";
 
 let fails = 0, passes = 0;
 const ok = (cond: unknown, msg: string) => { if (cond) passes++; else { fails++; console.log("FAIL:", msg); } };
@@ -257,6 +258,25 @@ ok(PL.dayPlan().ask === true, "aynı gün konu oturumu olsa da iki açık kapama
   ok(M.seen.q1 === "2026-11-05", "eşitleme: son görülme tarihi en yenisi");
   const M2 = mergeStates(B, A);
   ok(M2.profile.target === 80 && M2.attempts.length === 2 && M2.fams.eh.n === 12, "eşitleme: yön fark etmez");
+}
+
+// --- Profil istatistikleri ---
+{
+  const P = defaultState();
+  const day = (k: number) => addDays("2026-11-20", k);
+  for (const k of [-10, -9, -8, -7, -3, -1, 0]) P.sessions.push({ id: "p" + k, date: day(k), kind: "oturum", n: 10, c: 7, cf: 8, p: 70, pf: 80, spq: 60, dur: 30 } as any);
+  P.attempts.push({ t: Date.now(), fam: "eh", sec: "gramer", ok: 1, fin: 1, u: 0, s: 30, src: "o", rep: 0, lab: "" }, { t: Date.now(), fam: "eh", sec: "gramer", ok: 0, fin: 1, u: 0, s: 30, src: "o", rep: 0, lab: "" }, { t: Date.now(), fam: "eh", sec: "gramer", ok: 0, fin: 0, u: 0, s: 30, src: "o", rep: 0, lab: "" });
+  P.mocks.push({ id: "m1", date: day(-5), label: "", n: 80, c: 60, w: 20, score: 75, dur: 150, t40: null, cp: {}, bySec: {} }, { id: "m2", date: day(-1), label: "", n: 80, c: 56, w: 24, score: 70, dur: 150, t40: null, cp: {}, bySec: {} });
+  P.fams.eh = { light: "green", wrong: 1, streak: 4, ok: 9, n: 10, last: 1, due: null, note: "" };
+  P.fams.tense = { light: "red", wrong: 5, streak: 0, ok: 2, n: 7, last: 1, due: null, note: "" };
+  const st = profileStats(P, "2026-11-20");
+  ok(st.streak === 2 && st.best === 4, `profil: güncel seri 2, en uzun seri 4 (${st.streak}, ${st.best})`);
+  ok(st.days === 7 && st.since === day(-10) && st.minutes === 7 * 30 + 300, "profil: gün sayısı, ilk gün ve toplam süre");
+  ok(st.questions === 2 && st.accuracy === 50, "profil: yalnızca son cevaplar sayılır");
+  ok(st.week.length === 7 && st.week[6].on && st.week[5].on && !st.week[4].on && st.week[0].date === day(-6), "profil: son 7 gün şeridi");
+  ok(st.bestMock === 75 && st.lastMock === 70, "profil: en iyi ve son deneme");
+  ok(st.strong === FAMILIES.eh.n && st.weak === FAMILIES.tense.n && st.green === 1, "profil: en güçlü ve en zayıf hata türü");
+  ok(profileStats(defaultState(), "2026-11-20").streak === 0 && profileStats(defaultState()).accuracy === null, "profil: boş durumda sıfır ve boş");
 }
 
 console.log(`${passes} geçti, ${fails} kaldı`);
