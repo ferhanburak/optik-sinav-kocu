@@ -45,3 +45,6 @@ yarn-error.*
 
 # Supabase anahtarları
 .env
+
+# test-hub sonuçları (npm run test:hub)
+test-results/

@@ -30,7 +30,8 @@ Telefona **Expo Go** uygulamasını kur ve terminalde çıkan QR kodu okut. Tara
 
 | Komut | Ne yapar |
 |---|---|
-| `npm test` | Motor testlerini çalıştırır: içerik, ışıklar, setler, denemeler, kelimeler, karar notu |
+| `npm test` | Jest testleri: motor (içerik, ışıklar, setler, denemeler, kelimeler, plan, eşitleme), gizli anahtar taraması; Supabase RLS testleri `SUPABASE_DB_URL` varsa çalışır (CI'da test-hub kurar) |
+| `npm run test:hub` | Aynı testler, sonucu test-hub için `test-results/test-hub-unit.json` dosyasına yazar |
 | `npm run typecheck` | TypeScript tip kontrolü yapar |
 | `npm run build:web` | `src/content` içeriğini web sürümüne (`web/optik.html`) gömer |
 
@@ -45,8 +46,8 @@ Telefona **Expo Go** uygulamasını kur ve terminalde çıkan QR kodu okut. Tara
 | `src/ui/` | Ortak bileşenler, soru kartı, konu anlatımı görünümü, grafikler |
 | `src/screens/` | Sınavlarım, Bugün, Plan, Deneme, Defter (kelimeler dahil), İlerleme, profil ve sınav ayarları |
 | `src/players/` | Günlük oturum, drill, seviye testi, deneme, kelime tekrarı |
-| `tests/` | Motor testleri |
-| `supabase/schema.sql` | Bulut tablosu ve erişim kuralları |
+| `tests/` | Jest testleri: motor (`logic.test.ts`), Supabase RLS (`rls/`), gizli anahtar taraması (`security/`); test kartları `tests/catalog/` |
+| `supabase/migrations/` | Bulut tablosu ve erişim kuralları |
 | `web/` | Tek sayfalık önceki web sürümü (Claude Artifact) |
 
 ## Hesap ve eşitleme (Supabase)
@@ -55,7 +56,7 @@ Uygulama girişsiz tam çalışır. `.env` dosyası varsa profil ekranında **Go
 
 Kurulum (bir kez):
 
-1. supabase.com'da yeni proje aç. **SQL Editor**'da `supabase/schema.sql` dosyasını çalıştır.
+1. supabase.com'da yeni proje aç. **SQL Editor**'da `supabase/migrations/` altındaki SQL dosyasını çalıştır.
 2. `.env.example` dosyasını `.env` olarak kopyala; **Project Settings → API** sayfasındaki Project URL ve anon key değerlerini yaz. Anon key uygulamaya gömülür; veriyi tablo kuralları (RLS) korur.
 3. Google Cloud Console'da **OAuth consent screen**'i ayarla, sonra **Credentials → OAuth client ID → Web application** oluştur. Authorized redirect URI: `https://PROJE-KIMLIGI.supabase.co/auth/v1/callback`.
 4. Supabase'de **Authentication → Providers → Google**'ı aç, Google'dan aldığın Client ID ve Client Secret'ı yaz.
