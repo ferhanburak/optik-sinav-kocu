@@ -24,8 +24,12 @@
     "react-native-web": "^0.21.4"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/pg": "^8.23.1",
     "@types/react": "~19.3.0",
-    "esbuild": "^0.25.0",
+    "jest": "~30.5.2",
+    "jest-expo": "~58.0.15",
+    "pg": "^8.23.1",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -33,9 +37,21 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "test": "esbuild tests/logic.test.ts --bundle --platform=node --log-level=warning --outfile=.test/logic.js --alias:@react-native-async-storage/async-storage=./tests/rn-mock.js --alias:expo-print=./tests/rn-mock.js --alias:expo-sharing=./tests/rn-mock.js && node .test/logic.js",
+    "test": "jest",
     "typecheck": "tsc --noEmit",
-    "build:web": "node web/build.js"
+    "build:web": "node web/build.js",
+    "test:hub": "node -e \"require('fs').mkdirSync('test-results',{recursive:true})\" && jest --ci --json --outputFile=test-results/test-hub-unit.json"
   },
-  "private": true
+  "private": true,
+  "jest": {
+    "preset": "jest-expo",
+    "testMatch": [
+      "<rootDir>/tests/**/*.test.ts"
+    ],
+    "moduleNameMapper": {
+      "^@react-native-async-storage/async-storage$": "<rootDir>/tests/rn-mock.js",
+      "^expo-print$": "<rootDir>/tests/rn-mock.js",
+      "^expo-sharing$": "<rootDir>/tests/rn-mock.js"
+    }
+  }
 }
